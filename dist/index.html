@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+	<head>
+		<title>zerosense</title>
+		
+		<link rel="stylesheet" href="app.css">
+	</head>
+	<body>
+		<div class="header">
+			<h1>zerosense</h1>
+		</div>
+	
+		<!-- Options -->
+		<div class="options">
+			<label>Foo</label> <input id="foo" type="text" value="0x8d000000" />
+		</div>
+	
+		<!-- Actions -->
+		<div class="actions">
+			<button id="buttonInit">Initialize</button>
+			<button id="buttonCreateChain">Create Chain</button>
+			<button id="buttonExecuteChain">Execute Chain</button>
+		</div>
+	
+		<!-- Log -->
+		<div class="actions-log">
+			<button id="buttonLogClear">Clear</button>
+		</div>
+		<div id="log">Loading...</div>
+	
+		<div id="trigger"></div>
+	
+		<!-- Scripts -->		
+		<script src="deps.js"></script>
+		<script src="bundle.js"></script>
+	</body>
+</html>

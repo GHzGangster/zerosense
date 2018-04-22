@@ -1,0 +1,33 @@
+body {
+	background-color: #212121;
+	color: #fff;
+	font-size: 1.666em;
+}
+
+button, input {
+	font-size: inherit;
+}
+
+.header {
+	margin-bottom: 40px;
+}
+
+.options {
+	margin-bottom: 40px;
+}
+
+.actions {
+	margin-bottom: 40px;
+}
+
+.actions-log {
+	margin-bottom: 10px;
+}
+
+#log {
+	border: 1px solid #ccc;
+	padding: 10px;
+	font-family: "Courier New", Courier, monospace;
+	overflow: scroll;
+	height: 500px;
+}
