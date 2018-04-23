@@ -44,7 +44,7 @@ class MemoryReader {
 		this.element.style.src = "local(" + floatOverflow(readAddress, readSize) + ")";
 		
 		//logger.info(this.element.style.src.length);
-		//logger.info(Util.str2hex(this.element.style.src));
+		//logger.info(Util.strhex(this.element.style.src));
 		
 		var str = this.element.style.src.substr(6 + (address - readAddress) / 2, size / 2);
 		
@@ -52,10 +52,10 @@ class MemoryReader {
 			logger.error("READ ERROR");
 			/*logger.error((str !== null) + " - " + str.length + " - " + size / 2);
 			logger.error(`${address.toString(16)} - ${size.toString(16)}`);
-			logger.error(Util.str2hex(str));
+			logger.error(Util.strhex(str));
 			
 			logger.info(`read | address 0x${address.toString(16)} | size 0x${size.toString(16)} | readAddress 0x${readAddress.toString(16)} | readSize 0x${readSize.toString(16)}`);
-			logger.info(Util.str2hex(this.element.style.src));
+			logger.info(Util.strhex(this.element.style.src));
 			logger.info(this.element.style.src.length);*/
 		}
 		

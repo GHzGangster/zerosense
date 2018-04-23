@@ -187,19 +187,19 @@ class Searcher {
 			return false;
 		}
 		
-		var addrStrObjPtr = Util.bin2int(str.substr(2, 2));
+		var addrStrObjPtr = Util.getint32(str.substr(2, 2));
 		if (addrStrObjPtr < 0x80000000 || 0x8fffffff < addrStrObjPtr) {
 			return false;
 		}
 		
 		str = this.memoryReader.read(addrStrObjPtr + 0x8, 4);
-		var addrStrObj = Util.bin2int(str);
+		var addrStrObj = Util.getint32(str);
 		if (addrStrObj < 0x80000000 || 0x8fffffff < addrStrObj) {
 			return false;
 		}
 		
 		str = this.memoryReader.read(addrStrObj + 0x18, 4);
-		var addrStr = Util.bin2int(str);
+		var addrStr = Util.getint32(str);
 		if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
 			return false;
 		}

