@@ -7,7 +7,7 @@ class ArrayLeaker {
 	}
 	
 	createArray(length, verifyString) {
-		this.array = new Array(length);
+		this.array = new Array(length + 1);
 		this.array[0] = verifyString;
 	}
 	

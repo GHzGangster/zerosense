@@ -1,4 +1,4 @@
-var dex481 = {
+var DEX_481 = {
 	addrToc: 0x705610,
 	addrGadget1: 0x976BC,
 	addrGadgetMod1: 0x6161B8,
@@ -7,9 +7,12 @@ var dex481 = {
 	addrGadgetMod8: 0x2C24DC,
 };
 
-function get(dex, fw) {
+function get(env) {
+	var dex = env.dex;
+	var fw = env.firmware;
+	
 	if (fw === "4.81" && dex) {
-		return dex481;
+		return DEX_481;
 	}
 	
 	throw new Error("No offsets for environment.");

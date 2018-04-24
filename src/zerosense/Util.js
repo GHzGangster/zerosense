@@ -37,7 +37,7 @@ function strhex(str) {
 	return hex.join("");
 }
 
-function pad(size, padstr) {
+function pad(size, padstr = unescape("\u0000")) {
 	var str = [];
 	var loops = size / (padstr.length * 2);
 	for (var i = 0; i < loops; i++) {
