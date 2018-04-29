@@ -27,7 +27,7 @@ class MemoryReader {
 		}
 		
 		if (alignment === null) {
-			logger.error("Couldn't get required alignment!");
+			logger.error(`Couldn't get required alignment: 0x${address.toString(16)} 0x${size.toString(16)}`);
 			return null;
 		}
 		

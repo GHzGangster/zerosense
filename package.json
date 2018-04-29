@@ -1,5 +1,5 @@
 {
-	"name": "xaisploit",
+	"name": "zerosense",
 	"version": "1.0.0",
 	"description": "Exploit toolkit for the PlayStation 3 Browser",
 	"private": true,
@@ -10,15 +10,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/GHzGangster/XaiSploit.git"
+		"url": "git+https://github.com/GHzGangster/zerosense.git"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "See readme",
 	"bugs": {
-		"url": "https://github.com/GHzGangster/XaiSploit/issues"
+		"url": "https://github.com/GHzGangster/zerosense/issues"
 	},
-	"homepage": "https://github.com/GHzGangster/XaiSploit#readme",
+	"homepage": "https://github.com/GHzGangster/zerosense#readme",
 	"devDependencies": {
 		"babel-core": "^6.26.0",
 		"babel-loader": "^7.1.2",
