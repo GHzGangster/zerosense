@@ -7,6 +7,11 @@ const BLOCK_SIZE_ARR = 0x2000 * 8;
 const WAIT_LOOP = 50;
 const WAIT_DONE = 50;
 
+/**
+ * Notice:
+ * 
+ * Only searchArray is currently being used and tested, other search functions will likely not work.
+ */
 class Searcher {
 
 	constructor(memoryReader) {
@@ -55,6 +60,8 @@ class Searcher {
 			var t = new Date().getTime() - this.startTime;
 			onFinished({ match: this.match, time: t });
 		});
+		
+		return p;
 	}
 	
 	searchBlock(block, blockSize, searchString, searchStringLength, searchStringFirstChar) {
@@ -112,6 +119,8 @@ class Searcher {
 			var t = new Date().getTime() - this.startTime;
 			onFinished({ match: this.match, time: t });
 		});
+		
+		return p;
 	}
 	
 	searchBlockWithChar(block, blockSize, searchChar, searchString, searchStringLength) {
@@ -128,48 +137,46 @@ class Searcher {
 		return match;
 	}
 	
-	startArray(memoryStart, memorySize, arr, onFinished) {
+	startArray(memoryStart, memorySize, arr) {
 		var arrLength = arr.length;
 		var arrValues = 1;
 		var arrFirstString = arr[0];
 		
 		this.startTime = new Date().getTime();
-		this.finished = false;
-		this.match = null;
 		
-		var p = Promise.resolve();
+		var p = Promise.resolve(null);
 		
 		for (let blockStart = 0, blockSize = 0; blockStart < memorySize; blockStart += blockSize) {
 			blockSize = Math.min(BLOCK_SIZE_ARR, memorySize - blockStart);
 			
-			p = p.then(() => new Promise(resolve => {
-				if (this.finished) {
-					return resolve();
+			p = p.then((match) => {
+				if (match !== null) {
+					return match;
 				}
-				
+
 				//logger.info(`Search Array : Block 0x${blockStart.toString(16)} - 0x${blockSize.toString(16)} bytes - 0x${(memoryStart + blockStart).toString(16)}`);
 				
 				let block = this.memoryReader.read(memoryStart + blockStart, blockSize);
 				
 				for (var blockOffset = 0; blockOffset < blockSize; blockOffset += 0x4) {
 					if (this.checkArray(block, blockOffset, memoryStart + blockStart + blockOffset, arrLength, arrValues, arrFirstString)) {
-						this.match = memoryStart + blockStart + blockOffset;
+						return memoryStart + blockStart + blockOffset;
 					}
 				}
 				
-				if (this.match !== null) {
-					this.finished = true;
-					return resolve();
-				}
-				
-				setTimeout(resolve, WAIT_LOOP);	
-    		}, () => {}));
+				return new Promise((resolve) => {
+					setTimeout(() => resolve(match), WAIT_LOOP);
+				});
+    		});
 		}
 		
-		p = p.then(sleep(WAIT_DONE)).then(() => {
-			var t = new Date().getTime() - this.startTime;
-			onFinished({ match: this.match, time: t });
+		p = p.then((match) => {
+			return new Promise((resolve) => {
+				setTimeout(() => resolve(match), WAIT_DONE);
+			})
 		});
+		
+		return p;
 	}
 	
 	checkArray(block, blockOffset, addr, length, values, firstString) {

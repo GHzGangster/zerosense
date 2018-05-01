@@ -78,63 +78,45 @@ var searcher = null;
 ///////////////////////////////////////
 
 var arrayLeaker = null;
+var buffer = null, addrBuffer = null;
 
-function needsInit() {
-	return arrayLeaker === null || !arrayLeaker.verify();
-}
-
-/**
- * TODO: Change search to create and pass a promise, so we can use then() to chain logic
- */
-function init(step = 0, data = null, callback = null) {
-	if (step === 0) {
+function init() {
+	if (arrayLeaker === null || !arrayLeaker.verify()) {
+		logger.info("Initializing");
+		
 		arrayLeaker = new ArrayLeaker(memoryReader);
 		arrayLeaker.createArray(20, "Obey the Moderator");
 		
 		var searchStart = 0x80190000;
 		var searchEnd = 0x80600000;
-		searcher.startArray(searchStart, searchEnd - searchStart, arrayLeaker.getArray(), (data) => init(step + 1, data));
-	}
-	
-	if (step === 1) {
-		if (data.match === null) {
-			return { success: false, fatal: true, step: step, message: "Failed to init ArrayLeaker." };
-		}
 		
-		logger.info(`Found ArrayLeaker array at 0x${data.match.toString(16)}`);
-		arrayLeaker.setAddress(data.match);
-		
-		step++;
+		return searcher.startArray(searchStart, searchEnd - searchStart, arrayLeaker.getArray())
+			.then((match) => {
+				if (match === null) {
+					throw new Error("Failed to init ArrayLeaker.");;
+				}
+				
+				logger.info(`Found ArrayLeaker array at 0x${match.toString(16)}`);
+				arrayLeaker.setAddress(match);
+				
+				logger.info("Creating buffers...");
+				
+				var i = 0;
+				buffer = Util.ascii("gtmp") + Util.pad(0x1000);
+				arrayLeaker.setString(i, buffer);
+				addrBuffer = arrayLeaker.getStringAddress(i);
+				if (addrBuffer === null) {
+					logger.error("Failed to get buffer address.");
+					return;
+				}
+				addrBuffer += 4;
+				logger.info(`Found buffer at 0x${addrBuffer.toString(16)}`);
+				
+				logger.info("Created buffers.");
+			});
 	}
 	
-	if (step === 2) {
-		createBuffers();
-		
-		step++;
-	}
-	
-	if (step === 3) {
-		setTimeout(callback);
-	}
-}
-
-var buffer = null, addrBuffer = null;
-
-function createBuffers() {
-	logger.info("Creating buffers...");
-	
-	var i = 0;
-	buffer = Util.ascii("gtmp") + Util.pad(0x1000);
-	arrayLeaker.setString(i, buffer);
-	addrBuffer = arrayLeaker.getStringAddress(i);
-	if (addrBuffer === null) {
-		logger.error("Failed to get buffer address.");
-		return;
-	}
-	addrBuffer += 4;
-	logger.info(`Found buffer at 0x${addrBuffer.toString(16)}`);
-	
-	logger.info("Created buffers.");
+	return Promise.resolve();
 }
 
 function execute(address) {
@@ -148,34 +130,20 @@ function execute(address) {
 function createFolder() {
 	logger.info("Creating folder...");
 	
-	/*var addrGtemp = 0xdeadbeef;
-	
-	var chain = new ChainBuilder(offsets, addrGtemp)
-		.create();
-		
-	console.log(Util.strhex(chain.getData()));
-	console.log(Util.strhex(chain.getChain()));
-	
-	chain.updateDataAddress(0x13370000);
-	
-	console.log(Util.strhex(chain.getData()));
-	console.log(Util.strhex(chain.getChain()));*/
-	
-	if (needsInit()) {
-		logger.info("Need to init first...");
-		init(0);
-		return;
-	}
-	
-	var path = Util.ascii("/dev_usb000/zerosense");
-	var result = mkdir(path).then((result) => {
-		if (result.code < 0) {
-			logger.error("Error while creating folder: " + result.message);
-			return;
-		}
-		
-		logger.info(`Value: 0x${result.value.toString(16)}`);
-	});
+	Promise.resolve()
+		.then(() => init())
+		.then(() => {
+			var path = Util.ascii("/dev_usb000/zerosense");
+			return mkdir(path).then((result) => {
+				if (result.code < 0) {
+					throw new Error("Error while creating folder: " + result.message);
+				}
+				
+				logger.info(`Value: 0x${result.value.toString(16)}`);
+			});
+		})
+		.then((result) => logger.info("Created folder."))
+		.catch((error) => logger.error(`Error while creating folder: ${error}`));
 }
 
 function mkdir(strpath) {
