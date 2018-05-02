@@ -1,4 +1,5 @@
 /*eslint-disable no-param-reassign */
+var Chain = require('zerosense/Chain');
 var Util = require('zerosense/Util');
 
 /**
@@ -27,7 +28,7 @@ class ChainBuilder {
 	create() {
 		this.chainEnd();
 		
-		return this;
+		return new Chain(this);
 	}
 	
 	appendData(d) {
@@ -405,15 +406,6 @@ class ChainBuilder {
 		this.appendChain(c);
 		
 		return this;
-	}
-	
-	static setup2(addr) {
-		return Util.pad(0x30)
-			+ Util.int32(addr);
-	}
-	
-	static setup1(addr) {		
-		return Util.int32(addr);
 	}
 	
 }

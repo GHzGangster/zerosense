@@ -6,9 +6,9 @@ class ArrayLeaker {
 		this.memoryReader = memoryReader;
 	}
 	
-	createArray(length, verifyString) {
+	createArray(length) {
 		this.array = new Array(length + 1);
-		this.array[0] = verifyString;
+		this.array[0] = "Obey the Moderator" + (new Date).getTime();
 	}
 	
 	getArray() {
@@ -66,10 +66,14 @@ class ArrayLeaker {
 		return this.array[index + 1];
 	}
 	
+	setAndGetAddress(index, string) {
+		this.setString(index, string);
+		return this.getStringAddress(index);
+	}
+	
 	getStringAddress(index) {
 		if (!this.verify()) {
-			logger.error("ArrayLeaker array is no longer valid!");
-			return null;
+			throw new Error("ArrayLeaker array is no longer valid!");
 		}
 		
 		var str = this.memoryReader.read(this.address + 0x20 + 0x8 * index, 0x8);

