@@ -137,8 +137,9 @@ function createFolder() {
 function mkdir(strpath) {
 	var chain = new ChainBuilder(offsets, addrBuffer)
 		.addData("path", strpath)
-		.syscallR3Data(0x32B, "path", 0o700, 0, 0, 0, 0, 0, 0)
-		.storeR3Data("errno")
+		.addDataInt32("errno")
+		.syscall(0x32B, "path", 0o700, 0, 0, 0, 0, 0, 0)
+		.storeR3("errno")
 		.create();
 	
 	chain.prepare(arrayLeaker);
