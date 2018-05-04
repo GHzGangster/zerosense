@@ -17,7 +17,11 @@ class Logger {
 	}
 	
 	info(message) {
-		this.element.insertAdjacentHTML("afterbegin", "[" + this.getTimestamp() + " INFO ] " + message + "<br>");
+		this.element.insertAdjacentHTML("afterbegin", "[" + this.getTimestamp() + " INFO] " + message + "<br>");
+	}
+	
+	debug(message) {
+		this.element.insertAdjacentHTML("afterbegin", "[" + this.getTimestamp() + " DEBUG] " + message + "<br>");
 	}
 	
  	error(message) {

