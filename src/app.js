@@ -150,9 +150,12 @@ function fileTest() {
 			logger.info(`Errno: 0x${errno.toString(16)}`);
 			logger.info(`Fd: 0x${fd.toString(16)}`);
 			
-			var data = Util.ascii("This is a test!");
-			errno = fsWrite(fd, data, data.length * 2);
+			var testStr = "This is a test!";
+			result = fsWrite(fd, Util.ascii(testStr), testStr.length);
+			errno = result.errno;
+			var written = result.written;
 			logger.info(`Errno: 0x${errno.toString(16)}`);
+			logger.info(`Written: 0x${Util.hex32(written.high)}${Util.hex32(written.low)}`);
 			
 			errno = fsClose(fd);
 			logger.info(`Errno: 0x${errno.toString(16)}`);
@@ -163,7 +166,7 @@ function fileTest() {
 
 function fsMkdir(strpath) {
 	var chain = new ChainBuilder(offsets, addrBuffer)
-		.addData("path", Util.ascii(strpath))
+		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.syscall(0x32B, "path", 0o700)
 		.storeR3("errno")
@@ -172,13 +175,12 @@ function fsMkdir(strpath) {
 	chain.prepare(arrayLeaker);
 	chain.execute();
 	
-	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
-	return errno;
+	return chain.getDataInt32("errno");
 }
 
 function fsOpen(strpath) {
 	var chain = new ChainBuilder(offsets, addrBuffer)
-		.addData("path", Util.ascii(strpath))
+		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
 		.syscall(0x321, "path", 0o102, "fd", 0o600)
@@ -188,14 +190,14 @@ function fsOpen(strpath) {
 	chain.prepare(arrayLeaker);
 	chain.execute();
 	
-	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
-	var fd = Util.getint32(chain.getData().substr(chain.getDataOffset("fd") / 2, 0x4 / 2));
+	var errno = chain.getDataInt32("errno");
+	var fd = chain.getDataInt32("fd");
 	return { errno: errno, fd: fd };
 }
 
 function fsWrite(fd, buffer, size) {
 	var chain = new ChainBuilder(offsets, addrBuffer)
-		.addData("buffer", buffer)
+		.addDataStr("buffer", buffer)
 		.addDataInt32("errno")
 		.addDataInt64("written")
 		.syscall(0x323, fd, "buffer", size, "written")
@@ -205,8 +207,7 @@ function fsWrite(fd, buffer, size) {
 	chain.prepare(arrayLeaker);
 	chain.execute();
 	
-	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
-	return errno;
+	return { errno: chain.getDataInt32("errno"), written: chain.getDataInt64("written") };
 }
 
 function fsClose(fd) {
@@ -219,8 +220,7 @@ function fsClose(fd) {
 	chain.prepare(arrayLeaker);
 	chain.execute();
 	
-	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
-	return errno;
+	return chain.getDataInt32("errno");
 }
 
 ///////////////////////////////////////

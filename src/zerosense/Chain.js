@@ -10,6 +10,43 @@ class Chain {
 		this.addrChainStart = 0;
 	}
 	
+	///////////////////////////////////////
+	// Public: Chain
+	///////////////////////////////////////
+	
+	getChain() {
+		return this.cb.getChain();
+	}
+	
+	
+	///////////////////////////////////////
+	// Public: Data
+	///////////////////////////////////////
+	
+	getData() {
+		return this.cb.getData();
+	}
+	
+	getDataOffset(id) {
+		return this.cb.getDataOffset(id);
+	}
+	
+	getDataInt32(id) {
+		var str = this.cb.getData().substr(this.cb.getDataOffset(id) / 2, 0x4 / 2);
+		return Util.getint32(str);
+	}
+	
+	getDataInt64(id) {
+		var strHigh = this.cb.getData().substr(this.cb.getDataOffset(id) / 2, 0x4 / 2);
+		var strLow = this.cb.getData().substr(this.cb.getDataOffset(id) / 2 + 2, 0x4 / 2);
+		return { high: Util.getint32(strHigh), low: Util.getint32(strLow) };
+	}
+	
+	
+	///////////////////////////////////////
+	// Private: Chain handling
+	///////////////////////////////////////
+	
 	setup2Make(addr) {
 		return Util.pad(0x30)
 			+ Util.int32(addr);
@@ -52,18 +89,6 @@ class Chain {
 		
 		this.addrChainStart = addrSetup1;
 		logger.info(`Chain start at 0x${this.addrChainStart.toString(16)}`);
-	}
-	
-	getData() {
-		return this.cb.getData();
-	}
-	
-	getChain() {
-		return this.cb.getChain();
-	}
-	
-	getDataOffset(id) {
-		return this.cb.getDataOffset(id);
 	}
 	
 	execute() {

@@ -46,7 +46,7 @@ class ChainBuilder {
 		return this.dataOffsets[id];
 	}
 	
-	addData(id, str) {
+	addDataStr(id, str) {
 		this.dataOffsets[id] = this.getDataCurrentOffset();
 		this.appendData(str);
 		return this;
