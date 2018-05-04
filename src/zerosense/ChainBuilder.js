@@ -60,7 +60,13 @@ class ChainBuilder {
 	
 	addDataInt64(id, value = 0) {
 		this.dataOffsets[id] = this.getDataCurrentOffset();
-		this.appendData(Util.int64(value));
+		this.appendData(Util.int64(0, value));
+		return this;
+	}
+	
+	addBuffer(id, size) {
+		this.dataOffsets[id] = this.getDataCurrentOffset();
+		this.appendData(Util.pad(size));
 		return this;
 	}
 	
@@ -69,7 +75,7 @@ class ChainBuilder {
 	// Public: Chain building
 	///////////////////////////////////////
 	
-	syscall(sc, r3, r4, r5, r6, r7, r8, r9, r10, r31out) {
+	syscall(sc, r3 = 0, r4 = 0, r5 = 0, r6 = 0, r7 = 0, r8 = 0, r9 = 0, r10 = 0, r31out) {
 		var AA = unescape("\u4141"), SF = unescape("\u5346");
 		
 		r31out = r31out || this.gtemp;

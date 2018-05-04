@@ -65,6 +65,9 @@ var searcher = null;
 		var buttonCreateFolder = document.getElementById("buttonCreateFolder");
 		buttonCreateFolder.addEventListener("click", () => createFolder());
 		
+		var buttonFileTest = document.getElementById("buttonFileTest");
+		buttonFileTest.addEventListener("click", () => fileTest());
+		
 		var buttonLogClear = document.getElementById("buttonLogClear");
 		buttonLogClear.addEventListener("click", () => logger.clear());
 	} catch (e) {
@@ -126,19 +129,90 @@ function createFolder() {
 	Promise.resolve()
 		.then(() => init())
 		.then(() => {
-			var path = Util.ascii("/dev_usb000/zerosense");
-			var errno = mkdir(path);
+			var path = "/dev_usb000/zerosense";
+			var errno = fsMkdir(path);
 			logger.info(`Errno: 0x${errno.toString(16)}`);
 		})
 		.then(() => logger.info("Created folder."))
 		.catch((error) => logger.error(`Error while creating folder. ${error}`));
 }
 
-function mkdir(strpath) {
+function fileTest() {
+	logger.info("File test...");
+	
+	Promise.resolve()
+		.then(() => init())
+		.then(() => {
+			var path = "/dev_usb000/test.txt";
+			var result = fsOpen(path);
+			var errno = result.errno;
+			var fd = result.fd;
+			logger.info(`Errno: 0x${errno.toString(16)}`);
+			logger.info(`Fd: 0x${fd.toString(16)}`);
+			
+			var data = Util.ascii("This is a test!");
+			errno = fsWrite(fd, data, data.length * 2);
+			logger.info(`Errno: 0x${errno.toString(16)}`);
+			
+			errno = fsClose(fd);
+			logger.info(`Errno: 0x${errno.toString(16)}`);
+		})
+		.then(() => logger.info("File test done."))
+		.catch((error) => logger.error(`Error while doing file test. ${error}`));
+}
+
+function fsMkdir(strpath) {
 	var chain = new ChainBuilder(offsets, addrBuffer)
-		.addData("path", strpath)
+		.addData("path", Util.ascii(strpath))
 		.addDataInt32("errno")
-		.syscall(0x32B, "path", 0o700, 0, 0, 0, 0, 0, 0)
+		.syscall(0x32B, "path", 0o700)
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker);
+	chain.execute();
+	
+	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
+	return errno;
+}
+
+function fsOpen(strpath) {
+	var chain = new ChainBuilder(offsets, addrBuffer)
+		.addData("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.addDataInt32("fd")
+		.syscall(0x321, "path", 0o102, "fd", 0o600)
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker);
+	chain.execute();
+	
+	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
+	var fd = Util.getint32(chain.getData().substr(chain.getDataOffset("fd") / 2, 0x4 / 2));
+	return { errno: errno, fd: fd };
+}
+
+function fsWrite(fd, buffer, size) {
+	var chain = new ChainBuilder(offsets, addrBuffer)
+		.addData("buffer", buffer)
+		.addDataInt32("errno")
+		.addDataInt64("written")
+		.syscall(0x323, fd, "buffer", size, "written")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker);
+	chain.execute();
+	
+	var errno = Util.getint32(chain.getData().substr(chain.getDataOffset("errno") / 2, 0x4 / 2));
+	return errno;
+}
+
+function fsClose(fd) {
+	var chain = new ChainBuilder(offsets, addrBuffer)
+		.addDataInt32("errno")
+		.syscall(0x324, fd)
 		.storeR3("errno")
 		.create();
 	
