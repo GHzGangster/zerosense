@@ -65,6 +65,9 @@ var searcher = null;
 		var buttonCreateFolder = document.getElementById("buttonCreateFolder");
 		buttonCreateFolder.addEventListener("click", () => createFolder());
 		
+		var buttonCreateFolderMulti = document.getElementById("buttonCreateFolderMulti");
+		buttonCreateFolderMulti.addEventListener("click", () => createFolderMulti());
+		
 		var buttonFileTest = document.getElementById("buttonFileTest");
 		buttonFileTest.addEventListener("click", () => fileTest());
 		
@@ -91,14 +94,14 @@ function init() {
 		logger.debug("Initializing...");
 		
 		arrayLeaker = new ArrayLeaker(memoryReader);
-		arrayLeaker.createArray(20);
 		
 		var searchStart = 0x80190000;
-		var searchEnd = 0x80600000;
+		var searchEnd = 0x8efb0000;
 		
-		return searcher.startArray(searchStart, searchEnd - searchStart, arrayLeaker.getArray())
+		return searcher.searchArrayLeaker(searchStart, searchEnd - searchStart, arrayLeaker.getArray())
 			.then((match) => {
 				if (match === null) {
+					arrayLeaker = null;
 					throw new Error("Failed to init ArrayLeaker.");
 				}
 				
@@ -108,10 +111,8 @@ function init() {
 			.then(() => {
 				logger.debug("Creating buffers...");
 				
-				var i = 0;
-				
 				gtemp = Util.ascii("gtmp") + Util.pad(0x1000);
-				addrGtemp = arrayLeaker.setAndGetAddress(i++, gtemp);
+				addrGtemp = arrayLeaker.getAddress(gtemp);
 				if (addrGtemp === null) {
 					logger.error("Failed to get gtemp address.");
 					return;
@@ -140,6 +141,32 @@ function createFolder() {
 		})
 		.then(() => logger.info("Created folder."))
 		.catch((error) => logger.error(`Error while creating folder. ${error}`));
+}
+
+function createFolderMulti() {
+	logger.info("Creating folder (multi)...");
+	
+	var p = Promise.resolve();
+	
+	for (let i = 0; i < 1000; i++) {
+		p = p.then(() => init())
+			.then(() => {
+				var path = "/dev_usb000/zerosense";
+				var errno = fsMkdir(path);
+				logger.info(`${i} - Errno: 0x${errno.toString(16)}`);
+			})
+			.then(() => {
+				return new Promise((resolve) => {
+					setTimeout(resolve);
+				});
+			});
+	}
+	
+	p = p.then(() => logger.info("Created folder (multi)."))
+		.catch((error) => {
+			logger.error(`Error while creating folder. ${error}`)
+			logger.debug(`ArrayLeaker valid? ${arrayLeaker.verify()}`);
+		});		
 }
 
 function fileTest() {

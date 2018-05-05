@@ -66,6 +66,10 @@ function ascii(str) {
 	return unescape(s);
 }
 
+function strcopy(str) {
+	return str.substr(0, 1) + str.substr(1);
+}
+
 module.exports = {
 	hex8,
 	hex16,

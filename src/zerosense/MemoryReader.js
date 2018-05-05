@@ -27,7 +27,7 @@ class MemoryReader {
 		}
 		
 		if (alignment === null) {
-			logger.error(`Couldn't get required alignment: 0x${address.toString(16)} 0x${size.toString(16)}`);
+			throw new Error(`Couldn't get required alignment: 0x${address.toString(16)} 0x${size.toString(16)}`);
 			return null;
 		}
 		
@@ -50,7 +50,7 @@ class MemoryReader {
 		var str = this.element.style.src.substr(6 + (address - readAddress) / 2, size / 2);
 		
 		if (str === null || str.length < size / 2) {
-			logger.error("READ ERROR");
+			throw new Error("MemoryReader read error: did not get expected string length.");
 			/*logger.error((str !== null) + " - " + str.length + " - " + size / 2);
 			logger.error(`${address.toString(16)} - ${size.toString(16)}`);
 			logger.error(Util.strhex(str));

