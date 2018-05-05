@@ -71,11 +71,17 @@ var searcher = null;
 		var buttonFileTest = document.getElementById("buttonFileTest");
 		buttonFileTest.addEventListener("click", () => fileTest());
 		
+		var buttonFileCopyTest = document.getElementById("buttonFileCopyTest");
+		buttonFileCopyTest.addEventListener("click", () => fileCopyTest());
+		
 		var buttonXhrTest = document.getElementById("buttonXhrTest");
 		buttonXhrTest.addEventListener("click", () => xhrTest());
 		
 		var buttonXhrFileTest = document.getElementById("buttonXhrFileTest");
 		buttonXhrFileTest.addEventListener("click", () => xhrFileTest());
+		
+		var buttonXhrFileCopy = document.getElementById("buttonXhrFileCopy");
+		buttonXhrFileCopy.addEventListener("click", () => xhrFileCopy());
 	} catch (e) {
 		if (environment.ps3) {
 			alert(e);
@@ -227,6 +233,25 @@ function fsOpen(strpath) {
 	return { errno: errno, fd: fd };
 }
 
+function fsRead(fd, size) {
+	var chain = new ChainBuilder(offsets, addrGtemp)
+		.addDataBuffer("buffer", size)
+		.addDataInt32("errno")
+		.addDataInt64("read")
+		.syscall(0x322, fd, "buffer", size, "read")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker);
+	chain.execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var read = chain.getDataInt64("read");
+	var buffer = chain.getDataBuffer("buffer", read.low);
+	
+	return { errno: errno, read: read, buffer: buffer };
+}
+
 function fsWrite(fd, buffer, size) {
 	var chain = new ChainBuilder(offsets, addrGtemp)
 		.addDataStr("buffer", buffer)
@@ -307,6 +332,80 @@ function xhrFileTest() {
 			logger.debug(`Errno: 0x${errno.toString(16)}`);
 		})
 		.then(() => logger.info("XHR File test done."))
+		.catch((error) => logger.error(`Error while doing file test. ${error}`));
+}
+
+function xhrFileCopy() {
+	logger.info("XHR file copy...");
+	
+	Promise.resolve()
+		.then(() => init())
+		.then(() => request("GET", "xhr.txt"))
+		.then((xhr) => {
+			var files = xhr.responseText.split(/\r?\n/);
+			
+			var p = Promise.resolve();
+			
+			for (let i = 0; i < files.length; i++) {
+				p = p.then(() => {
+					fileCopy("/dev_usb000/" + files[i], "/dev_usb000/zerosense/" + files[i]);
+				});
+			}
+			
+			return p;
+		})
+		.then(() => logger.info("XHR file copy done."))
+		.catch((error) => logger.error(`Error while doing XHR file copy. ${error}`));
+}
+
+function fileCopy(fromPath, toPath) {
+	logger.debug(`File copy: ${fromPath} -> ${toPath}`);
+	
+	var result = fsOpen(fromPath);
+	var errno = result.errno;
+	var fromFd = result.fd;
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+	logger.debug(`Fd: 0x${fromFd.toString(16)}`);
+	
+	result = fsOpen(toPath);
+	errno = result.errno;
+	toFd = result.fd;
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+	logger.debug(`Fd: 0x${toFd.toString(16)}`);
+	
+	result = fsRead(fromFd, 0x100);
+	errno = result.errno;
+	var read = result.read;
+	var buffer = result.buffer;
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+	logger.debug(`Read: 0x${Util.hex32(read.high)}${Util.hex32(read.low)}`);
+	logger.debug(`Buffer: ${Util.strhex(buffer)}`);			
+	
+	result = fsWrite(toFd, buffer, read.low);
+	errno = result.errno;
+	var written = result.written;
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+	logger.debug(`Written: 0x${Util.hex32(written.high)}${Util.hex32(written.low)}`);
+	
+	errno = fsClose(toFd);
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+	
+	errno = fsClose(fromFd);
+	logger.debug(`Errno: 0x${errno.toString(16)}`);
+}
+
+function fileCopyTest() {
+	logger.info("File copy test...");
+	
+	Promise.resolve()
+		.then(() => init())
+		.then(() => {
+			var fromPath = "/dev_usb000/copyme.txt";
+			var toPath = "/dev_usb000/copyme_to.txt";
+			
+			fileCopy(fromPath, toPath);
+		})
+		.then(() => logger.info("File copy test done."))
 		.catch((error) => logger.error(`Error while doing file test. ${error}`));
 }
 

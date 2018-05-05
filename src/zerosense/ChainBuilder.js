@@ -64,7 +64,7 @@ class ChainBuilder {
 		return this;
 	}
 	
-	addBuffer(id, size) {
+	addDataBuffer(id, size) {
 		this.dataOffsets[id] = this.getDataCurrentOffset();
 		this.appendData(Util.pad(size));
 		return this;

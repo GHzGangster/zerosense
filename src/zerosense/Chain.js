@@ -33,6 +33,12 @@ class Chain {
 		return this.cb.getDataOffset(id);
 	}
 	
+	getDataBuffer(id, size) {
+		var sizeChars = ((size % 2) !== 0) ? (size / 2 + 1) : (size / 2);
+		var str = this.cb.getData().substr(this.cb.getDataOffset(id) / 2, sizeChars);
+		return str;
+	}
+	
 	getDataInt32(id) {
 		var str = this.cb.getData().substr(this.cb.getDataOffset(id) / 2, 0x4 / 2);
 		return Util.getint32(str);
