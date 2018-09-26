@@ -90,6 +90,8 @@ class Chain {
 		}
 		
 		this.addrChainStart = addrSetup1;
+		
+		return this;
 	}
 	
 	execute() {
@@ -98,6 +100,8 @@ class Chain {
 		}
 		
 		trigger.innerHTML = -parseFloat("NAN(ffffe" + this.addrChainStart.toString(16));
+		
+		return this;
 	}
 	
 }

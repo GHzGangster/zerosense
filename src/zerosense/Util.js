@@ -24,8 +24,12 @@ function int64(high, low) {
 	return int32(high) + int32(low);
 }
 
-function getint32(val) {
-	return parseInt(hex16(val.charCodeAt(0)) + hex16(val.charCodeAt(1)), 16);
+function getint16(val, offset = 0) {
+	return parseInt(hex16(val.charCodeAt(offset)), 16);
+}
+
+function getint32(val, offset = 0) {
+	return parseInt(hex16(val.charCodeAt(offset)) + hex16(val.charCodeAt(offset + 1)), 16);
 }
 
 // TODO: Add a proper hexdump function
@@ -66,6 +70,32 @@ function ascii(str) {
 	return unescape(s);
 }
 
+function getascii(_str, offset, _len) {
+	var length = _len;
+	var dropLast = length % 2 == 1;
+	if (dropLast) {
+		length += 1;
+	}
+	var str = _str.substr(offset / 2, length / 2);
+	var ascii = "";
+	for (var i = 0; i < str.length; i++) {
+		var c = str.charCodeAt(i);
+		
+		var c0 = c >> 8;
+		if (c0 === 0) {
+			break;
+		}
+		ascii += String.fromCharCode(c0);
+		
+		var c1 = c & 0xff;
+		if (c1 === 0 || (dropLast && (i + 1 == str.length))) {
+			break;
+		}
+		ascii += String.fromCharCode(c1);
+	}
+	return ascii;
+}
+
 function strcopy(str) {
 	return str.substr(0, 1) + str.substr(1);
 }
@@ -76,8 +106,10 @@ module.exports = {
 	hex32,
 	int32,
 	int64,
+	getint16,
 	getint32,
 	strhex,
 	pad,
-	ascii
+	ascii,
+	getascii
 };

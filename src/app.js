@@ -68,6 +68,9 @@ var searcher = null;
 		var buttonCreateFolderMulti = document.getElementById("buttonCreateFolderMulti");
 		buttonCreateFolderMulti.addEventListener("click", () => createFolderMulti());
 		
+		var buttonFolderTest = document.getElementById("buttonFolderTest");
+		buttonFolderTest.addEventListener("click", () => folderTest());
+		
 		var buttonFileTest = document.getElementById("buttonFileTest");
 		buttonFileTest.addEventListener("click", () => fileTest());
 		
@@ -82,6 +85,9 @@ var searcher = null;
 		
 		var buttonXhrFileCopy = document.getElementById("buttonXhrFileCopy");
 		buttonXhrFileCopy.addEventListener("click", () => xhrFileCopy());
+
+		Promise.resolve()
+			.then(() => init());
 	} catch (e) {
 		if (environment.ps3) {
 			alert(e);
@@ -173,6 +179,40 @@ function createFolderMulti() {
 			logger.error(`Error while creating folder. ${error}`)
 			logger.debug(`ArrayLeaker valid? ${arrayLeaker.verify()}`);
 		});		
+}
+
+function folderTest() {
+	logger.info("Folder test...");
+	
+	Promise.resolve()
+		.then(() => init())
+		.then(() => {
+			var path = "/dev_hdd0/game/BLUS30109/USRDIR/dlc/";
+			var result = fsOpenDir(path);
+			var errno = result.errno;
+			var fd = result.fd;
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+			logger.debug(`Fd: 0x${fd.toString(16)}`);
+			
+			var name = "";
+			var type = 0;
+			do {
+				result = fsReadDir(fd);
+				errno = result.errno;
+				type = result.type;
+				name = result.name;
+				if (name.length == 0) {
+					break;
+				}
+				
+				logger.debug(`File: ${type.toString(16)} ${name}`);
+			} while (name.length > 0);
+			
+			errno = fsCloseDir(fd);
+			logger.debug(`Errno: 0x${errno.toString(16)}`);
+		})
+		.then(() => logger.info("Folder test done."))
+		.catch((error) => logger.error(`Error while running folder test. ${error}`));
 }
 
 function fileTest() {
@@ -280,6 +320,63 @@ function fsClose(fd) {
 	return chain.getDataInt32("errno");
 }
 
+function fsOpenDir(strpath) {
+	var chain = new ChainBuilder(offsets, addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.addDataInt32("fd")
+		.syscall(0x325, "path", "fd")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var fd = chain.getDataInt32("fd");
+	return { errno: errno, fd: fd };
+}
+
+function fsReadDir(fd) {
+	var chain = new ChainBuilder(offsets, addrGtemp)
+		.addDataInt32("errno")
+		.addDataBuffer("dir", 258)
+		.addDataInt64("read")
+		.syscall(0x326, fd, "dir", "read")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var type = 0;
+	var name = "";
+	
+	if (errno == 0) {
+		var read = chain.getDataInt64("read");
+		if (read.low > 0) {
+			var dir = chain.getDataBuffer("dir", read.low);
+			var typeAndLength = Util.getint16(dir);
+			type = typeAndLength >> 8;
+			var length = typeAndLength & 0xff;
+			var name = Util.getascii(dir, 2, length);
+		}
+	}
+	
+	return { errno: errno, type: type, name: name };
+}
+
+function fsCloseDir(fd) {
+	var chain = new ChainBuilder(offsets, addrGtemp)
+		.addDataInt32("errno")
+		.syscall(0x327, fd)
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(arrayLeaker).execute();
+	
+	return chain.getDataInt32("errno");
+}
+
 function request(method, url) {
     return new Promise((resolve) => {
         var xhr = new XMLHttpRequest();
@@ -358,6 +455,9 @@ function xhrFileCopy() {
 		.catch((error) => logger.error(`Error while doing XHR file copy. ${error}`));
 }
 
+/**
+ * TODO: Return an object with success/failure, and a message, like the launcher
+ */
 function fileCopy(fromPath, toPath) {
 	logger.debug(`File copy: ${fromPath} -> ${toPath}`);
 	
@@ -369,7 +469,7 @@ function fileCopy(fromPath, toPath) {
 	
 	result = fsOpen(toPath);
 	errno = result.errno;
-	toFd = result.fd;
+	var toFd = result.fd;
 	logger.debug(`Errno: 0x${errno.toString(16)}`);
 	logger.debug(`Fd: 0x${toFd.toString(16)}`);
 	
