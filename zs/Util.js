@@ -1,3 +1,7 @@
+function testxx(x = "hello") {
+  console.log(x);
+}
+
 function hex8(val) {
 	var v = val & 0xff;
 	var hex = v.toString(16).toUpperCase();

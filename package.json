@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "Exploit toolkit for the PlayStation 3 Browser",
 	"private": true,
-	"main": "server.js",
+	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "webpack"
@@ -18,21 +18,11 @@
 	"bugs": {
 		"url": "https://github.com/GHzGangster/zerosense/issues"
 	},
-	"homepage": "https://github.com/GHzGangster/zerosense#readme",
+	"homepage": "https://github.com/GHzGangster/zerosense",
 	"devDependencies": {
-		"babel-core": "^6.26.0",
-		"babel-loader": "^7.1.2",
-		"babel-plugin-syntax-flow": "^6.18.0",
-		"babel-plugin-transform-flow-strip-types": "^6.22.0",
-		"babel-plugin-transform-runtime": "^6.23.0",
-		"babel-preset-env": "^1.6.0",
-		"es3ify-loader": "^0.2.0",
-		"sleep-promise": "^3.0.0",
-		"webpack": "^3.6.0"
+		
 	},
 	"dependencies": {
-		"connect": "^3.6.6",
-		"serve-static": "^1.13.2",
-		"babel-polyfill": "^6.26.0"
+		
 	}
 }
