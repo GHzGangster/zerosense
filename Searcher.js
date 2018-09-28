@@ -1,10 +1,12 @@
-var Util = require('zerosense/Util');
+var Util = require('./Util.js');
+
 
 const BLOCK_SIZE = 0x2000;
-const BLOCK_SIZE_ARRAY_LEAKER = 0x20000;
+const BLOCK_SIZE_ZSARRAY = 0x20000;
 
 const WAIT_LOOP = 0;
 const WAIT_DONE = 0;
+
 
 class Searcher {
 
@@ -12,7 +14,7 @@ class Searcher {
 		this.memoryReader = memoryReader;
 	}
 	
-	searchArrayLeaker(memoryStart, memorySize, arr) {
+	searchZsArray(memoryStart, memorySize, arr) {
 		var arrLength = arr.length;
 		var arrValues = 1;
 		var arrFirstString = arr[0];
@@ -22,7 +24,7 @@ class Searcher {
 		var p = Promise.resolve(null);
 		
 		for (let blockStart = 0, blockSize = 0; blockStart < memorySize; blockStart += blockSize) {
-			blockSize = Math.min(BLOCK_SIZE_ARRAY_LEAKER, memorySize - blockStart);
+			blockSize = Math.min(BLOCK_SIZE_ZSARRAY, memorySize - blockStart);
 			
 			p = p.then((match) => {
 				if (match !== null) {
@@ -95,5 +97,6 @@ class Searcher {
 	}
 	
 }
+
 
 module.exports = Searcher;

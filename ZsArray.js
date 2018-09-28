@@ -1,9 +1,11 @@
-var Util = require('zerosense/Util');
+var Util = require('./Util.js');
+
 
 var ident = "Obey the Moderator";
 var arrayLength = 0x27; // Low % of 0x27 in memory
 
-class ArrayLeaker {
+
+class ZsArray {
 	
 	constructor(memoryReader) {
 		this.memoryReader = memoryReader;
@@ -19,7 +21,7 @@ class ArrayLeaker {
 	
 	getAddress(value) {
 		if (!this.verify()) {
-			throw new Error("ArrayLeaker array is no longer valid!");
+			throw new Error("ZsArray array is no longer valid!");
 		}
 		
 		if (typeof value === "string") {
@@ -151,4 +153,4 @@ class ArrayLeaker {
 	
 }
 
-module.exports = ArrayLeaker;
+module.exports = ZsArray;

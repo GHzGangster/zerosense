@@ -1,4 +1,5 @@
-var Util = require('zerosense/Util');
+var Util = require('./Util.js');
+
 
 class MemoryReader {
 	
@@ -90,7 +91,7 @@ class MemoryReader {
 	
 }
 
-// /////////////////////////////////////
+///////////////////////////////////////
 
 Number.prototype.noExponents = function() {
 	var data = String(this).split(/[eE]/);
@@ -148,5 +149,6 @@ function floatOverflow(address, size) {
 	var n = (address << 32) | ((size >> 1) - 1);
 	return generateIEEE754(address, (n - address));
 }
+
 
 module.exports = MemoryReader;

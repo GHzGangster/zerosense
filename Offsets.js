@@ -16,6 +16,7 @@ var DEX_481 = {
 	gadgetZMod2: 0x105F0,
 };
 
+
 function get(env) {
 	var dex = env.dex;
 	var fw = env.firmware;
@@ -26,6 +27,7 @@ function get(env) {
 	
 	throw new Error("No offsets for environment.");
 }
+
 
 module.exports = {
 	get

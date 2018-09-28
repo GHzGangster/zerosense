@@ -4,14 +4,6 @@ class Logger {
 		this.element = element;
 	}
 	
-	static init(element) {
-		Logger.instance = new Logger(element); 
-	}
-	
-	static getLogger() {
-		return Logger.instance;
-	}
-	
 	getTimestamp() {
 		return new Date().toLocaleTimeString();
 	}
@@ -34,6 +26,5 @@ class Logger {
 	
 }
 
-Logger.instance = null;
 
 module.exports = Logger;

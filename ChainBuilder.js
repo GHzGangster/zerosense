@@ -1,6 +1,8 @@
 /*eslint-disable no-param-reassign */
-var Chain = require('zerosense/Chain');
-var Util = require('zerosense/Util');
+
+var Chain = require('./Chain.js');
+var Util = require('./Util.js');
+
 
 class ChainBuilder {
 	
@@ -350,5 +352,6 @@ class ChainBuilder {
 	}
 	
 }
+
 
 module.exports = ChainBuilder;

