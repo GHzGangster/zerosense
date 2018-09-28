@@ -21,7 +21,7 @@ class ZsArray {
 	
 	getAddress(value) {
 		if (!this.verify()) {
-			throw new Error("ZsArray array is no longer valid!");
+			throw new Error("ZsArray is no longer valid!");
 		}
 		
 		if (typeof value === "string") {
@@ -54,6 +54,7 @@ class ZsArray {
 		var addrStr = null;
 		var ptr1 = Util.getint32(str.substr(10, 2));
 		if (ptr1 !== 0) {
+			Util.dtime("longer string");
 			// TODO: Look at this case more in depth
 			
 			// Longer string
@@ -78,6 +79,7 @@ class ZsArray {
 				}
 			}
 		} else {
+			Util.dtime("shorter string");
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
 			
