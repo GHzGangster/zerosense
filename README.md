@@ -1,10 +1,10 @@
 ## zerosense
 
-Zerosense is an exploit toolkit for the PlayStation 3 Browser, based on work by the [PS3Xploit](https://github.com/PS3Xploit) team, and the proof-of-concepts which came before. It also takes inspiration other projects, such as [PegaSwitch](https://github.com/reswitched/pegaswitch) and [PS4 Playground](https://github.com/CTurt/PS4-playground).
+Zerosense is an exploit library for the PlayStation 3 Browser, based on work by the [PS3Xploit](https://github.com/PS3Xploit) team, and the proof-of-concepts which came before. It also takes inspiration other projects, such as [PegaSwitch](https://github.com/reswitched/pegaswitch) and [PS4 Playground](https://github.com/CTurt/PS4-playground).
 
 This project is primarily designed to manipulate files for the [SaveMGO MGO2 Revival](https://savemgo.com/) project, to aid users on official firmware. Additional functionality may be added in the future.
 
-Node.js is used both to bundle the application, and to act as a web server. The JavaScript target is ES3, so additional functionality is added as needed.
+Node.js is used both to bundle the application, and to act as a web server. The JavaScript target is ES3, so additional functionality is added as needed. Source from here needs to be transpiled to support the PS3 browser.
 
 
 ## Warning
@@ -29,22 +29,6 @@ This approach allows us to conduct only one initial, cheap search, as opposed to
 * Be able to easily add support for different firmware
 
 
-## Setup
+## Usage
 
-Node.js and NPM should be installed beforehand. See <https://docs.npmjs.com/getting-started/installing-node>
-
-    npm install
-
-This project has been built using Node 7.10.1 and NPM 4.2.0. There may be some issues that arise for other versions.
-
-
-## Building
-
-    npm run build
-    
-
-## Running
-
-    npm start
-
-The web server will be running on port 9000, by default.
+See [zerosense-demo](https://github.com/GHzGangster/zerosense-demo).
