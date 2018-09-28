@@ -87,7 +87,7 @@ class Chain {
 		
 		var setup1 = this.setup1Make(addrSetup2);
 		var addrSetup1 = zsArray.getAddress(setup1);
-		f (addrSetup1 === null) {
+		if (addrSetup1 === null) {
 			throw new Error("Failed to get setup1 address.");
 		}
 		
