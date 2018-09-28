@@ -1,3 +1,10 @@
+var zs = require('./index.js');
+
+
+function dtime(message) {
+	zs.logger.debug(new Date().getTime() + " - " + message);
+}
+
 function hex8(val) {
 	var v = val & 0xff;
 	var hex = v.toString(16).toUpperCase();
@@ -101,6 +108,7 @@ function strcopy(str) {
 }
 
 module.exports = {
+	dtime,
 	hex8,
 	hex16,
 	hex32,

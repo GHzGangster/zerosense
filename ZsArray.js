@@ -1,3 +1,5 @@
+var zs = require('./index.js');
+
 var Util = require('./Util.js');
 
 
@@ -21,7 +23,7 @@ class ZsArray {
 	
 	getAddress(value) {
 		if (!this.verify()) {
-			throw new Error("ZsArray array is no longer valid!");
+			throw new Error("ZsArray is no longer valid!");
 		}
 		
 		if (typeof value === "string") {
@@ -70,10 +72,11 @@ class ZsArray {
 				return null;
 			}
 			
-			for (var i = 0; i < 0x300; i++) {
-				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
+			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
+			for (var i = 0; i < 0x300 / 2; i++) {
+				str = mem.substr(i, this.array[1].length);
 				if (str === this.array[1]) {
-					addrStr = addr3 + i;
+					addrStr = addr3 + i * 2;
 					break;
 				}
 			}
