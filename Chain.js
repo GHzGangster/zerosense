@@ -66,12 +66,16 @@ class Chain {
 		return Util.int32(addr);
 	}
 	
-	prepare(zsArray) {	
+	prepare(zsArray) {
+		Util.dtime("prepare");
+		
 		var addrData = zsArray.getAddress(this.cb.getData());
+		Util.dtime("got data address");
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
 		}
 		this.cb.updateDataAddress(addrData);
+		Util.dtimr("updated data address");
 		
 		var addrStack = zsArray.getAddress(this.cb.getChain());
 		if (addrStack === null) {
