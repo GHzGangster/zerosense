@@ -78,6 +78,7 @@ class Chain {
 		Util.dtime("updated data address");
 		
 		var addrStack = zsArray.getAddress(this.cb.getChain());
+		Util.dtime("got chain address");
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
 		}
@@ -85,12 +86,14 @@ class Chain {
 		
 		var setup2 = this.setup2Make(addrStack + chainStackOffset);
 		var addrSetup2 = zsArray.getAddress(setup2);
+		Util.dtime("got setup2 address");
 		if (addrSetup2 === null) {
 			throw new Error("Failed to get setup2 address.");
 		}
 		
 		var setup1 = this.setup1Make(addrSetup2);
 		var addrSetup1 = zsArray.getAddress(setup1);
+		Util.dtime("got setup1 address");
 		if (addrSetup1 === null) {
 			throw new Error("Failed to get setup1 address.");
 		}
