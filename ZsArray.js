@@ -71,8 +71,9 @@ class ZsArray {
 				return null;
 			}
 			
+			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
 			for (var i = 0; i < 0x300; i++) {
-				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
+				str = mem.substr(addr3 + i, this.array[1].length * 2);
 				if (str === this.array[1]) {
 					addrStr = addr3 + i;
 					break;
