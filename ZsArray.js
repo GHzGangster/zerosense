@@ -77,7 +77,7 @@ class ZsArray {
 			for (var i = 0; i < 0x300; i++) {
 				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
 				if (str === this.array[1]) {
-					zs.logger.debug(`Search 1: Found string 0x${addr3.toString(16)} + 0x${i.toString(16)}  0x${(this.array[1].length * 2).toString(16)}`);
+					zs.logger.debug(`Search 1: Found string 0x${addr3.toString(16)} + 0x${i.toString(16)}`);
 					addrStr = addr3 + i;
 					break;
 				}
@@ -89,7 +89,7 @@ class ZsArray {
 			for (var i = 0; i < 0x300; i++) {
 				str = mem.substr(i, this.array[1].length);
 				if (str === this.array[1]) {
-					zs.logger.debug(`Search 2: Found string 0x${addr3.toString(16)} + 0x${i.toString(16)}  0x${(this.array[1].length * 2).toString(16)}`);
+					zs.logger.debug(`Search 2: Found string 0x${addr3.toString(16)} + 0x${(i * 2).toString(16)}`);
 					//addrStr = addr3 + i;
 					break;
 				}
