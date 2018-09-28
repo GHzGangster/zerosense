@@ -73,6 +73,7 @@ class ZsArray {
 				return null;
 			}
 			
+			Util.dtime("Search 1 start");
 			for (var i = 0; i < 0x300; i++) {
 				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
 				if (str === this.array[1]) {
@@ -81,7 +82,9 @@ class ZsArray {
 					break;
 				}
 			}
+			Util.dtime("Search 1 end");
 			
+			Util.dtime("Search 2 start");
 			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300 * 2);
 			for (var i = 0; i < 0x300; i++) {
 				str = mem.substr(i, this.array[1].length);
@@ -91,6 +94,7 @@ class ZsArray {
 					break;
 				}
 			}
+			Util.dtime("Search 2 start");
 		} else {
 			Util.dtime("shorter string");
 			// Shorter string
