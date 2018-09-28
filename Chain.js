@@ -77,7 +77,7 @@ class Chain {
 		this.cb.updateDataAddress(addrData);
 		
 		var addrStack = zsArray.getAddress(this.cb.getChain());
-		Util.dtime("got chain address"); // 267-269 ms !!!
+		Util.dtime("got chain address"); // now 50 ms
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
 		}

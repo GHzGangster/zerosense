@@ -56,6 +56,7 @@ class ZsArray {
 		var addrStr = null;
 		var ptr1 = Util.getint32(str.substr(10, 2));
 		if (ptr1 !== 0) {
+			Util.dtime("longer string");
 			// TODO: Look at this case more in depth
 			
 			// Longer string
@@ -72,15 +73,30 @@ class ZsArray {
 				return null;
 			}
 			
-			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300 * 2);
+			Util.dtime("Search 1 start");
 			for (var i = 0; i < 0x300; i++) {
-				str = mem.substr(i, this.array[1].length);
+				str = this.memoryReader.read(addr3 + i, this.array[1].length * 2);
 				if (str === this.array[1]) {
+					zs.logger.debug(`Search 1: Found string 0x${addr3.toString(16)} + 0x${i.toString(16)}  0x${(this.array[1].length * 2).toString(16)}`);
 					addrStr = addr3 + i;
 					break;
 				}
 			}
+			Util.dtime("Search 1 end");
+			
+			Util.dtime("Search 2 start");
+			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300 * 2);
+			for (var i = 0; i < 0x300; i++) {
+				str = mem.substr(i, this.array[1].length);
+				if (str === this.array[1]) {
+					zs.logger.debug(`Search 2: Found string 0x${addr3.toString(16)} + 0x${i.toString(16)}  0x${(this.array[1].length * 2).toString(16)}`);
+					//addrStr = addr3 + i;
+					break;
+				}
+			}
+			Util.dtime("Search 2 end");
 		} else {
+			Util.dtime("shorter string");
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
 			
