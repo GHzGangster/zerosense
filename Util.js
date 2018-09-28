@@ -108,6 +108,7 @@ function strcopy(str) {
 }
 
 module.exports = {
+	dtime,
 	hex8,
 	hex16,
 	hex32,
