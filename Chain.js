@@ -75,7 +75,7 @@ class Chain {
 			throw new Error("Failed to get chain data address.");
 		}
 		this.cb.updateDataAddress(addrData);
-		Util.dtimr("updated data address");
+		Util.dtime("updated data address");
 		
 		var addrStack = zsArray.getAddress(this.cb.getChain());
 		if (addrStack === null) {
