@@ -81,7 +81,7 @@ class ZsArray {
 			
 			// Search around reasonable offset
 			if (addrStr === null) {
-				var reasonableOffset = getReasonableOffset(this.array[1].length) * 2 - 0x100 / 2;
+				var reasonableOffset = this.getReasonableOffset(this.array[1].length) * 2 - 0x100 / 2;
 				mem = this.memoryReader.read(addr3 + reasonableOffset, this.array[1].length * 2 + 0x100);
 				for (var i = 0; i < 0x100 / 2; i++) {
 					str = mem.substr(i, this.array[1].length);
