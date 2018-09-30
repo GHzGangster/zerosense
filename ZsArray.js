@@ -98,8 +98,8 @@ class ZsArray {
 			
 			// Search 0x0 to 0x1000 (last resort)
 			if (addrStr === null) {
-				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x1000);
-				for (var i = 0; i < 0x1000 / 2; i++) {
+				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x9000);
+				for (var i = 0; i < 0x9000 / 2; i++) {
 					str = mem.substr(i, this.array[1].length);
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
