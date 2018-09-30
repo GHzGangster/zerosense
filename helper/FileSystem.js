@@ -36,7 +36,7 @@ function read(fd, size) {
 	var read = chain.getDataInt64("read");
 	var buffer = chain.getDataBuffer("buffer", read.low);
 	
-	return { errno: errno, read: read, buffer: buffer };
+	return { errno: errno, read: read.low, buffer: buffer };
 }
 
 function write(fd, buffer, size) {

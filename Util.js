@@ -32,11 +32,11 @@ function int64(high, low) {
 }
 
 function getint16(val, offset = 0) {
-	return parseInt(hex16(val.charCodeAt(offset)), 16);
+	return parseInt(hex16(val.charCodeAt(offset / 2)), 16);
 }
 
 function getint32(val, offset = 0) {
-	return parseInt(hex16(val.charCodeAt(offset)) + hex16(val.charCodeAt(offset + 1)), 16);
+	return parseInt(hex16(val.charCodeAt(offset / 2)) + hex16(val.charCodeAt(offset / 2 + 1)), 16);
 }
 
 // TODO: Add a proper hexdump function
