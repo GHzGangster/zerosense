@@ -78,7 +78,7 @@ class ZsArray {
 			for (var i = 0; i < 0x300 / 2; i++) {
 				str = mem.substr(i, this.array[1].length);
 				if (str === this.array[1]) {
-					zs.logger.debug(`Found long: ${this.array[1].length.toString(16)}    0x${i}`);
+					zs.logger.debug(`Found long: ${this.array[1].length}    ${i}`);
 					addrStr = addr3 + i * 2;
 					break;
 				}
