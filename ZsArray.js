@@ -72,14 +72,17 @@ class ZsArray {
 				return null;
 			}
 			
+			logger.debug("start mem search");
 			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
 			for (var i = 0; i < 0x300 / 2; i++) {
 				str = mem.substr(i, this.array[1].length);
 				if (str === this.array[1]) {
+					logger.debug(`found longer string: +${i.toString(16)} _ ${this.array[1].length}`);
 					addrStr = addr3 + i * 2;
 					break;
 				}
 			}
+			logger.debug("end mem search");
 		} else {
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
