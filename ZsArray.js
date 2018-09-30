@@ -130,7 +130,7 @@ class ZsArray {
 	}
 	
 	getReasonableOffset(strLength) {
-		return 0.12610622308133998 * strLength + 10.885473027119275;
+		return ~~(0.12610622308133998 * strLength + 10.885473027119275);
 	}
 	
 	
