@@ -75,7 +75,7 @@ class ZsArray {
 			// Try 0x0 first
 			var mem = this.memoryReader.read(addr3, this.array[1].length * 2);
 			if (mem === this.array[1]) {
-				zs.logger.debug(`Found long at zero: ${this.array[1].length}`);
+				//zs.logger.debug(`Found long at zero: ${this.array[1].length}`);
 				addrStr = addr3;
 			}
 			
@@ -87,16 +87,15 @@ class ZsArray {
 				for (var i = 0; i < 0x100 / 2; i++) {
 					str = mem.substr(i, this.array[1].length);
 					if (str === this.array[1]) {
-						zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
+						//zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
 						addrStr = addr3 + reasonableOffset + i * 2;
-						zs.logger.debug(`addrStr: ${addrStr.toString(16)}`);
-						//addrStr = null;
+						//zs.logger.debug(`addrStr: ${addrStr.toString(16)}`);
 						break;
 					}
 				}
 			}
 			
-			// Search 0x0 to 0x1000 (last resort)
+			// Search 0x20000 bytes (last resort)
 			if (addrStr === null) {
 				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x20000);
 				for (var i = 0; i < 0x20000 / 2; i++) {
