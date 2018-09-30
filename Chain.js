@@ -1,5 +1,7 @@
 /*eslint-disable no-param-reassign */
 
+var zs = require('./index.js');
+
 var Util = require('./Util.js');
 
 
