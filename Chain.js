@@ -69,7 +69,6 @@ class Chain {
 	}
 	
 	prepare(zsArray) {
-		zs.logger.debug("get data");
 		var addrData = zsArray.getAddress(this.cb.getData());
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
