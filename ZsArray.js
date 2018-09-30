@@ -93,8 +93,6 @@ class ZsArray {
 			if (str !== this.array[1]) {
 				return null;
 			}
-			
-			zs.logger.debug(`Found short: ${this.array[1].length}`);
 		}
 		
 		return addrStr;
