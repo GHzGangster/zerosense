@@ -81,10 +81,7 @@ class ZsArray {
 			
 			// Search around reasonable offset
 			if (addrStr === null) {
-				var reasonableOffset = this.getReasonableOffset(this.array[1].length);
-				zs.logger.debug(`reasonableOffset a: ${reasonableOffset}`);
-				reasonableOffset = reasonableOffset * 2 - 0x50;
-				zs.logger.debug(`reasonableOffset b: ${reasonableOffset}`);
+				var reasonableOffset = this.getReasonableOffset(this.array[1].length) * 2 - 0x50;
 				
 				mem = this.memoryReader.read(addr3 + reasonableOffset, this.array[1].length * 2 + 0x100);
 				for (var i = 0; i < 0x100 / 2; i++) {
@@ -92,7 +89,7 @@ class ZsArray {
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
 						addrStr = addr3 + reasonableOffset + i * 2;
-						zs.logger.debug(`addrStr b: ${addrStr.toString(16)}`);
+						zs.logger.debug(`addrStr a: ${addrStr.toString(16)}`);
 						addrStr = null;
 						break;
 					}
