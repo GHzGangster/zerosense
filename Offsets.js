@@ -1,6 +1,13 @@
 var DEX_481 = {
-	addrToc: 0x705610,
+	
+	toc: 0x705610,
+	tocEntry4: 0x750000,
+	
+	////////////
+	
 	gadget1: 0x976BC,
+	gadget6: 0x61CEBC,
+	
 	gadgetMod1: 0x6161B8,
 	gadgetMod2: 0x13B74,
 	gadgetMod3: 0xB8EB8,
@@ -10,10 +17,13 @@ var DEX_481 = {
 	gadgetMod13: 0x33E480,
 	gadgetMod15: 0x3A4C28,
 	
+	////////////
+	
 	gadgetZ1: 0x304578,
 	
 	gadgetZMod1: 0xD62B4,
 	gadgetZMod2: 0x105F0,
+	
 };
 
 
