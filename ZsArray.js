@@ -72,15 +72,39 @@ class ZsArray {
 				return null;
 			}
 			
-			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
-			for (var i = 0; i < 0x300 / 2; i++) {
-				str = mem.substr(i, this.array[1].length);
-				if (str === this.array[1]) {
-					zs.logger.debug(`Found long: ${this.array[1].length}    ${i}`);
-					addrStr = addr3 + i * 2;
-					break;
+			// Try 0x0 first
+			var mem = this.memoryReader.read(addr3, this.array[1].length * 2);
+			if (mem === this.array[1]) {
+				zs.logger.debug(`Found long at zero: ${this.array[1].length}`);
+				addrStr = addr3;
+			}
+			
+			// Search around reasonable offset
+			if (addrStr === null) {
+				var reasonableOffset = getReasonableOffset(this.array[1].length) * 2 - 0x100 / 2;
+				mem = this.memoryReader.read(addr3 + reasonableOffset, this.array[1].length * 2 + 0x100);
+				for (var i = 0; i < 0x100 / 2; i++) {
+					str = mem.substr(i, this.array[1].length);
+					if (str === this.array[1]) {
+						zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
+						addrStr = addr3 + i * 2;
+						break;
+					}
 				}
 			}
+			
+			// Search 0x0 to 0x300 (last resort)
+			if (addrStr === null) {
+				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
+				for (var i = 0; i < 0x300 / 2; i++) {
+					str = mem.substr(i, this.array[1].length);
+					if (str === this.array[1]) {
+						zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
+						addrStr = addr3 + i * 2;
+						break;
+					}
+				}
+			}			
 		} else {
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
@@ -96,6 +120,10 @@ class ZsArray {
 		}
 		
 		return addrStr;
+	}
+	
+	getReasonableOffset(strLength) {
+		return 0.12610622308133998 * strLength + 10.885473027119275;
 	}
 	
 	
