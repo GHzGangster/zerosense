@@ -88,7 +88,7 @@ class ZsArray {
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
 						var addrStr2 = addr3 + reasonableOffset + i * 2;
-						zs.logger.debug(`addrStr b: ${addrStr2.toString(16)}`);
+						zs.logger.debug(`addrStr a: ${addrStr2.toString(16)}`);
 						break;
 					}
 				}
