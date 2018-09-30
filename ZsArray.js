@@ -87,7 +87,8 @@ class ZsArray {
 					str = mem.substr(i, this.array[1].length);
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long a: ${this.array[1].length}    ${i}`);
-						//addrStr = addr3 + i * 2;
+						var addrStr2 = addr3 + reasonableOffset + i * 2;
+						zs.logger.debug(`addrStr b: ${addrStr2.toString(16)}`);
 						break;
 					}
 				}
@@ -101,6 +102,7 @@ class ZsArray {
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
 						addrStr = addr3 + i * 2;
+						zs.logger.debug(`addrStr b: ${addrStr.toString(16)}`);
 						break;
 					}
 				}
