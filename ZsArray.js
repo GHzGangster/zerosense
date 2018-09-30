@@ -35,8 +35,6 @@ class ZsArray {
 	}
 	
 	getStringAddress() {
-		zs.logger.debug("getStringAddress ...");
-		
 		var str = this.memoryReader.read(this.address + 0x20, 0x8);
 		if (str.charCodeAt(0) !== 0xffff || str.charCodeAt(1) !== 0xfffe
 			|| (str.charCodeAt(2) === 0 && str.charCodeAt(3) === 0)) {

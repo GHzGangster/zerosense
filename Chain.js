@@ -76,7 +76,6 @@ class Chain {
 		}
 		this.cb.updateDataAddress(addrData);
 		
-		zs.logger.debug("get chain");
 		var addrStack = zsArray.getAddress(this.cb.getChain());
 		if (addrStack === null) {
 			throw new Error("Failed to get chain stack address.");
