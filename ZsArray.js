@@ -34,7 +34,9 @@ class ZsArray {
 		throw new Error("getAddress currently only works on strings.");
 	}
 	
-	getStringAddress() {		
+	getStringAddress() {
+		zs.logger.debug("getStringAddress ...");
+		
 		var str = this.memoryReader.read(this.address + 0x20, 0x8);
 		if (str.charCodeAt(0) !== 0xffff || str.charCodeAt(1) !== 0xfffe
 			|| (str.charCodeAt(2) === 0 && str.charCodeAt(3) === 0)) {
@@ -72,7 +74,6 @@ class ZsArray {
 				return null;
 			}
 			
-			zs.logger.debug("start mem search");
 			var mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x300);
 			for (var i = 0; i < 0x300 / 2; i++) {
 				str = mem.substr(i, this.array[1].length);
@@ -82,7 +83,6 @@ class ZsArray {
 					break;
 				}
 			}
-			zs.logger.debug("end mem search");
 		} else {
 			// Shorter string
 			addrStr = Util.getint32(str.substr(12, 2));
