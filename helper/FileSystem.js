@@ -21,23 +21,13 @@ function open(strpath) {
 	return { errno: errno, fd: fd };
 }
 
-function read(fd, size, bufptr = null) {
-	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp);
-	
-	if (bufptr === null) {
-		chain.addDataBuffer("buffer", size);
-	}
-	
-	chain.addDataInt32("errno")
-		.addDataInt64("read");
-	
-	if (bufptr === null) {
-		chain.syscall(0x322, fd, "buffer", size, "read");
-	} else {
-		chain.syscall(0x322, fd, bufptr, size, "read");
-	}
-	
-	chain = chain.storeR3("errno")
+function read(fd, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataBuffer("buffer", size)
+		.addDataInt32("errno")
+		.addDataInt64("read")
+		.syscall(0x322, fd, "buffer", size, "read")
+		.storeR3("errno")
 		.create();
 	
 	chain.prepare(zs.zsArray).execute();
@@ -49,12 +39,44 @@ function read(fd, size, bufptr = null) {
 	return { errno: errno, read: read.low, buffer: buffer };
 }
 
+function readPtr(fd, bufptr, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataInt64("read")
+		.syscall(0x322, fd, bufptr, size, "read");
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var read = chain.getDataInt64("read");
+	
+	return { errno: errno, read: read.low };
+}
+
 function write(fd, buffer, size) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("buffer", buffer)
 		.addDataInt32("errno")
 		.addDataInt64("written")
 		.syscall(0x323, fd, "buffer", size, "written")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var written = chain.getDataInt64("written");
+	
+	return { errno: errno, written: written.low };
+}
+
+function writePtr(fd, bufptr, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataInt64("written")
+		.syscall(0x323, fd, bufptr, size, "written")
 		.storeR3("errno")
 		.create();
 	
