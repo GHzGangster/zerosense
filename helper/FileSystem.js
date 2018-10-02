@@ -197,7 +197,9 @@ function mkdir(strpath) {
 module.exports = {
 	open,
 	read,
+	readPtr,
 	write,
+	writePtr,
 	close,
 	opendir,
 	readdir,
