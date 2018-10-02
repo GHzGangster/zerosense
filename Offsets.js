@@ -1,4 +1,4 @@
-var DEX_481 = {
+const DEX_481 = {
 	
 	toc: 0x705610,
 	tocEntry4: 0x750000,
@@ -19,10 +19,11 @@ var DEX_481 = {
 	
 	////////////
 	
-	ztoc1: 0x7580C0,
+	tocZ1: 0x7580C0, // _sysPrxForUser_
 	
 	gadgetZ1: 0x304578,
-	zgadget1: 0x61CEB8,
+	gadgetZ2: 0x61CEB8, // _sysPrxForUser__sys_malloc
+	gadgetZ3: 0x61CE50, // _sysPrxForUser__sys_free
 	
 	gadgetZMod1: 0xD62B4,
 	gadgetZMod2: 0x105F0,
