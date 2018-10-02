@@ -39,18 +39,24 @@ function read(fd, size) {
 	return { errno: errno, read: read.low, buffer: buffer };
 }
 
+var chain0 = null;
+
 function readPtr(fd, bufptr, size) {
-	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
-		.addDataInt32("errno")
-		.addDataInt64("read")
-		.syscall(0x322, fd, bufptr, size, "read")
-		.storeR3("errno")
-		.create();
+	if (chain0 === null) {
+		chain0 = new ChainBuilder(zs.offsets, zs.addrGtemp)
+			.addDataInt32("errno")
+			.addDataInt64("read")
+			.syscall(0x322, fd, bufptr, size, "read")
+			.storeR3("errno")
+			.create();
+			
+		chain0.prepare(zs.zsArray);
+	}	
 	
-	chain.prepare(zs.zsArray).execute();
+	chain0.execute();
 	
-	var errno = chain.getDataInt32("errno");
-	var read = chain.getDataInt64("read");
+	var errno = chain0.getDataInt32("errno");
+	var read = chain0.getDataInt64("read");
 	
 	return { errno: errno, read: read.low };
 }
