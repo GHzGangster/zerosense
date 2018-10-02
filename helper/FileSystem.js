@@ -43,7 +43,7 @@ function readPtr(fd, bufptr, size) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
 		.addDataInt64("read")
-		.syscall(0x322, fd, bufptr, size, "read");
+		.syscall(0x322, fd, bufptr, size, "read")
 		.storeR3("errno")
 		.create();
 	
