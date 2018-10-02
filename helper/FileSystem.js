@@ -21,13 +21,23 @@ function open(strpath) {
 	return { errno: errno, fd: fd };
 }
 
-function read(fd, size) {
-	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
-		.addDataBuffer("buffer", size)
-		.addDataInt32("errno")
-		.addDataInt64("read")
-		.syscall(0x322, fd, "buffer", size, "read")
-		.storeR3("errno")
+function read(fd, size, bufptr = null) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp);
+	
+	if (bufptr === null) {
+		chain.addDataBuffer("buffer", size);
+	}
+	
+	chain.addDataInt32("errno")
+		.addDataInt64("read");
+	
+	if (bufptr === null) {
+		chain.syscall(0x322, fd, "buffer", size, "read");
+	} else {
+		chain.syscall(0x322, fd, bufptr, size, "read");
+	}
+	
+	chain = chain.storeR3("errno")
 		.create();
 	
 	chain.prepare(zs.zsArray).execute();
