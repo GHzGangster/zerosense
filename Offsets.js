@@ -19,7 +19,10 @@ var DEX_481 = {
 	
 	////////////
 	
+	ztoc1: 0x7580C0,
+	
 	gadgetZ1: 0x304578,
+	zgadget1: 0x61CEB8,
 	
 	gadgetZMod1: 0xD62B4,
 	gadgetZMod2: 0x105F0,
