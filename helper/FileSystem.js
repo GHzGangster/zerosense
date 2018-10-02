@@ -42,7 +42,7 @@ function read(fd, size) {
 var chain0 = null;
 
 function readPtr(fd, bufptr, size) {
-	//if (chain0 === null) {
+	if (chain0 === null) {
 		chain0 = new ChainBuilder(zs.offsets, zs.addrGtemp)
 			.addDataInt32("errno")
 			.addDataInt64("read")
@@ -51,7 +51,7 @@ function readPtr(fd, bufptr, size) {
 			.create();
 			
 		chain0.prepare(zs.zsArray);
-	//}	
+	}	
 	
 	chain0.execute();
 	
