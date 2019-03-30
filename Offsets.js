@@ -101,6 +101,8 @@ function get(env) {
 	
 	if (fw === "4.81" && dex) {
 		return DEX_481;
+	} else if (fw === "4.84" && !dex) {
+		return CEX_484;
 	} else if (fw === "4.84" && dex) {
 		return DEX_484;
 	}
