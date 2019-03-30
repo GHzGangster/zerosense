@@ -51,7 +51,7 @@ const DEX_484 = {
 	
 	////////////
 	
-	tocZ1: 0x7580C0, // _sysPrxForUser_
+	tocZ1: 0x7586A0, // _sysPrxForUser_
 	
 	gadgetZ1: 0x30457C,
 	gadgetZ2: 0x61D8F4, // _sysPrxForUser__sys_malloc
