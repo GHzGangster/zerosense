@@ -371,7 +371,7 @@ class ChainBuilder {
 		
 		this.appendChain(
 			Util.int64(0x0, 0xffffffff)
-			+ Util.pad(0x20, AA)
+			+ Util.pad(0x40, AA)
 			
 			//////////
 			
