@@ -47,7 +47,7 @@ function readPtr(fd, bufptr, size) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(zs.zsArray)execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var read = chain.getDataInt64("read");
