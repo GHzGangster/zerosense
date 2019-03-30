@@ -83,7 +83,7 @@ const CEX_484 = {
 	
 	////////////
 	
-	tocZ1: 0x7586A0, // _sysPrxForUser_
+	tocZ1: 0x747D10, // _sysPrxForUser_
 	
 	gadgetZ1: 0x2FCDBC,
 	gadgetZ2: 0x615CD8, // _sysPrxForUser__sys_malloc
