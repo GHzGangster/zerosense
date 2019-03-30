@@ -69,6 +69,8 @@ function get(env) {
 	
 	if (fw === "4.81" && dex) {
 		return DEX_481;
+	} else if (fw === "4.84" && dex) {
+		return DEX_484;
 	}
 	
 	throw new Error("No offsets for environment.");
