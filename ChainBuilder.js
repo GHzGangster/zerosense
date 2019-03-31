@@ -371,7 +371,7 @@ class ChainBuilder {
 		this.appendChainDataOffset(this.dataOffsets['opdGadgetZ1']);
 		
 		this.appendChain(
-			+ Util.pad(0x48, AA)
+			Util.pad(0x48, AA)
 			
 			//////////
 			
