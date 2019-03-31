@@ -57,7 +57,7 @@ const DEX_484 = {
 	gadgetZ2: 0x61D8F4, // _sysPrxForUser__sys_malloc
 	gadgetZ3: 0x61D88C, // _sysPrxForUser__sys_free
 	
-	gadgetZMod1: 0xD62B4,
+	gadgetZMod1: 0xE4384,
 	gadgetZMod2: 0x105F0,
 	
 };
