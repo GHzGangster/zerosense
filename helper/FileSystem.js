@@ -4,12 +4,12 @@ var ChainBuilder = require('../ChainBuilder.js');
 var Util = require('../Util.js');
 
 
-function open(strpath, flags, mode) {
+function open(strpath, flags) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
-		.syscall(0x321, "path", flags, "fd", mode)
+		.syscall(0x321, "path", flags, "fd", 0)
 		.storeR3("errno")
 		.create();
 	
@@ -193,6 +193,21 @@ function mkdir(strpath, mode) {
 	return { errno: errno };
 }
 
+function chmod(strpath, mode) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.syscall(0x342, "path", mode)
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	
+	return { errno: errno };
+}
+
 
 module.exports = {
 	open,
@@ -206,4 +221,5 @@ module.exports = {
 	closedir,
 	fstat,
 	mkdir,
+	chmod,
 }
