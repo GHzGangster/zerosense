@@ -4,12 +4,12 @@ var ChainBuilder = require('../ChainBuilder.js');
 var Util = require('../Util.js');
 
 
-function open(strpath, flags) {
+function open(strpath, flags, mode) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
-		.syscall(0x321, "path", flags, "fd", 0)
+		.syscall(0x321, "path", flags, "fd", mode)
 		.storeR3("errno")
 		.create();
 	
