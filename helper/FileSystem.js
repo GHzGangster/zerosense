@@ -4,12 +4,12 @@ var ChainBuilder = require('../ChainBuilder.js');
 var Util = require('../Util.js');
 
 
-function open(strpath) {
+function open(strpath, flags, mode) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
 		.addDataInt32("fd")
-		.syscall(0x321, "path", 0o102, "fd", 0o600)
+		.syscall(0x321, "path", flags, "fd", mode)
 		.storeR3("errno")
 		.create();
 	
@@ -36,7 +36,23 @@ function read(fd, size) {
 	var read = chain.getDataInt64("read");
 	var buffer = chain.getDataBuffer("buffer", read.low);
 	
-	return { errno: errno, read: read, buffer: buffer };
+	return { errno: errno, read: read.low, buffer: buffer };
+}
+
+function readPtr(fd, bufptr, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataInt64("read")
+		.syscall(0x322, fd, bufptr, size, "read")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var read = chain.getDataInt64("read");
+	
+	return { errno: errno, read: read.low };
 }
 
 function write(fd, buffer, size) {
@@ -45,6 +61,22 @@ function write(fd, buffer, size) {
 		.addDataInt32("errno")
 		.addDataInt64("written")
 		.syscall(0x323, fd, "buffer", size, "written")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var written = chain.getDataInt64("written");
+	
+	return { errno: errno, written: written.low };
+}
+
+function writePtr(fd, bufptr, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataInt64("written")
+		.syscall(0x323, fd, bufptr, size, "written")
 		.storeR3("errno")
 		.create();
 	
@@ -130,11 +162,42 @@ function closedir(fd) {
 	return { errno: errno };
 }
 
-function mkdir(strpath) {
+function fstat(fd) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataBuffer("sb", 52)
+		.syscall(0x329, fd, "sb")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var sb = chain.getDataBuffer("sb", 52);
+	
+	return { errno: errno, fd: fd, sb: sb };
+}
+
+function mkdir(strpath, mode) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
-		.syscall(0x32B, "path", 0o700)
+		.syscall(0x32B, "path", mode) //0o700
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	
+	return { errno: errno };
+}
+
+function chmod(strpath, mode) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.syscall(0x342, "path", mode)
 		.storeR3("errno")
 		.create();
 	
@@ -149,10 +212,14 @@ function mkdir(strpath) {
 module.exports = {
 	open,
 	read,
+	readPtr,
 	write,
+	writePtr,
 	close,
 	opendir,
 	readdir,
 	closedir,
+	fstat,
 	mkdir,
+	chmod,
 }

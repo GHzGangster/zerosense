@@ -1,9 +1,12 @@
 /*eslint-disable no-param-reassign */
 
+var zs = require('./index.js');
+
 var Util = require('./Util.js');
 
 
 var trigger = document.body.appendChild(document.createElement("div"));
+trigger.setAttribute("id", "debugTrigger");
 
 
 class Chain {
@@ -67,15 +70,11 @@ class Chain {
 	}
 	
 	prepare(zsArray) {
-		Util.dtime("prepare");
-		
 		var addrData = zsArray.getAddress(this.cb.getData());
-		Util.dtime("got data address");
 		if (addrData === null) {
 			throw new Error("Failed to get chain data address.");
 		}
 		this.cb.updateDataAddress(addrData);
-		Util.dtime("updated data address");
 		
 		var addrStack = zsArray.getAddress(this.cb.getChain());
 		if (addrStack === null) {
