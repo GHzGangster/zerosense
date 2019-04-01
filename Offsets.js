@@ -95,7 +95,6 @@ const DEX_484 = {
 };
 
 
-
 function get(env) {
 	var dex = env.dex;
 	var fw = env.firmware;
