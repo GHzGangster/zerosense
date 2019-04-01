@@ -6,6 +6,7 @@ var Util = require('./Util.js');
 
 
 var trigger = document.body.appendChild(document.createElement("div"));
+trigger.setAttribute("id", "debugTrigger");
 
 
 class Chain {
