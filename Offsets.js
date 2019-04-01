@@ -94,24 +94,6 @@ const DEX_484 = {
 	
 };
 
-var DEX_484 = {
-	addrToc: 0x705648,
-	gadget1: 0x976BC,
-	gadgetMod1: 0x616BF4,
-	gadgetMod2: 0x13B74,
-	gadgetMod3: 0xB8EB8,
-	gadgetMod4a: 0xDEBD8,
-	gadgetMod5: 0x42B4D0,
-	gadgetMod8: 0x2C24E0,
-	gadgetMod13: 0x33E484,
-	gadgetMod15: 0x3A4C2C,
-	
-	gadgetZ1: 0x30457C,
-	gadgetZMod1: 0xD62B4,
-	gadgetZMod2: 0x105F0,
-};
-
-
 
 function get(env) {
 	var dex = env.dex;
