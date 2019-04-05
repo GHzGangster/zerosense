@@ -55,6 +55,22 @@ function readPtr(fd, bufptr, size) {
 	return { errno: errno, read: read.low };
 }
 
+function readPtr(fd, bufptr, size) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataInt32("errno")
+		.addDataInt64("read")
+		.syscall(0x322, fd, bufptr, size, "read")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var read = chain.getDataInt64("read");
+	
+	return { errno: errno, read: read.low };
+}
+
 function write(fd, buffer, size) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("buffer", buffer)
