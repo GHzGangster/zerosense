@@ -36,11 +36,11 @@ function int64(high, low) {
 }
 
 function getint16(val, offset = 0) {
-	return parseInt(hex16(val.charCodeAt(offset / 2)), 16) & 0xffff;
+	return parseInt(hex16(val.charCodeAt(offset / 2)), 16);
 }
 
 function getint32(val, offset = 0) {
-	return parseInt(hex16(val.charCodeAt(offset / 2)) + hex16(val.charCodeAt(offset / 2 + 1)), 16) & 0xffffffff;
+	return parseInt(hex16(val.charCodeAt(offset / 2)) + hex16(val.charCodeAt(offset / 2 + 1)), 16);
 }
 
 function setint32(str, offset, val) {
