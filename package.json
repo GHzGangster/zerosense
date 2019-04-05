@@ -19,10 +19,6 @@
 		"url": "https://github.com/GHzGangster/zerosense/issues"
 	},
 	"homepage": "https://github.com/GHzGangster/zerosense",
-	"devDependencies": {
-		
-	},
-	"dependencies": {
-		
-	}
+	"devDependencies": {},
+	"dependencies": {}
 }
