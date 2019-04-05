@@ -23,6 +23,10 @@ function hex32(val) {
 	return ("00000000" + hex).slice(-8);
 }
 
+function int16(val) {
+	return String.fromCharCode(val);
+}
+
 function int32(val) {
 	return String.fromCharCode(val >> 16, val);
 }
@@ -138,6 +142,7 @@ module.exports = {
 	hex8,
 	hex16,
 	hex32,
+	int16,
 	int32,
 	int64,
 	getint16,
