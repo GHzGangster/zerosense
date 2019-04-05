@@ -1,4 +1,4 @@
-var zero = require('../index.js');
+var zero = require('index.js');
 
 var Util = require('./Util.js');
 
