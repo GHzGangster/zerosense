@@ -31,7 +31,7 @@ class Searcher {
 					return match;
 				}
 
-				//logger.debug(`Search Array : Block 0x${blockStart.toString(16)} - 0x${blockSize.toString(16)} bytes - 0x${(memoryStart + blockStart).toString(16)}`);
+				logger.debug(`Search Array : Block 0x${blockStart.toString(16)} - 0x${blockSize.toString(16)} bytes - 0x${(memoryStart + blockStart).toString(16)}`);
 				
 				let block = this.memoryReader.read(memoryStart + blockStart, blockSize);
 				
