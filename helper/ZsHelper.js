@@ -10,8 +10,8 @@ function initZsArray() {
 		
 		zs.zsArray = new ZsArray(zs.memoryReader);
 		
-		var searchStart = 0x80000000;
-		var searchEnd = 0x90000000;
+		var searchStart = 0x80190000;
+		var searchEnd = 0x8efb0000;
 		
 		return zs.searcher.searchZsArray(searchStart, searchEnd - searchStart, zs.zsArray.getArray())
 			.then((match) => {
