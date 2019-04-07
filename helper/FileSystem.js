@@ -179,7 +179,7 @@ function closedir(fd) {
 }
 
 function fstat(strpath) {
-	var chain = new ChainBuilder(zero.offsets, zero.addrGtemp)
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataBuffer("sb", 52)
@@ -187,7 +187,7 @@ function fstat(strpath) {
 		.storeR3("errno")
 		.create();
 	
-	chain.prepare(zero.zsArray).execute();
+	chain.prepare(zs.zsArray).execute();
 	
 	var errno = chain.getDataInt32("errno");
 	var sb = chain.getDataBuffer("sb", 52);
