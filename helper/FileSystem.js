@@ -176,7 +176,7 @@ function stat(path) {
 	var errno = chain.getDataInt32("errno");
 	var sb = chain.getDataBuffer("sb", 52);
 	
-	return { errno: errno, fd: fd, sb: sb };
+	return { errno: errno, sb: sb };
 }
 
 function fstat(fd) {
@@ -192,7 +192,7 @@ function fstat(fd) {
 	var errno = chain.getDataInt32("errno");
 	var sb = chain.getDataBuffer("sb", 52);
 	
-	return { errno: errno, fd: fd, sb: sb };
+	return { errno: errno, sb: sb };
 }
 
 function mkdir(strpath, mode) {
