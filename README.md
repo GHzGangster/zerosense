@@ -31,4 +31,4 @@ This approach allows us to conduct only one initial, cheap search, as opposed to
 
 ## Usage
 
-See [zerosense-demo](https://github.com/GHzGangster/zerosense-demo).
+See [zerosense-demo](https://github.com/GHzGangster/zerosense-demo). x
