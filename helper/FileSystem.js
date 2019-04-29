@@ -162,6 +162,23 @@ function closedir(fd) {
 	return { errno: errno };
 }
 
+function stat(path) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.addDataBuffer("sb", 52)
+		.syscall(0x328, "path", "sb")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	var sb = chain.getDataBuffer("sb", 52);
+	
+	return { errno: errno, fd: fd, sb: sb };
+}
+
 function fstat(fd) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataInt32("errno")
@@ -219,6 +236,7 @@ module.exports = {
 	opendir,
 	readdir,
 	closedir,
+	stat,
 	fstat,
 	mkdir,
 	chmod,
