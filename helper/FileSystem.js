@@ -162,7 +162,7 @@ function closedir(fd) {
 	return { errno: errno };
 }
 
-function stat(path) {
+function stat(strpath) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
 		.addDataInt32("errno")
