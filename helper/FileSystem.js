@@ -225,6 +225,21 @@ function chmod(strpath, mode) {
 	return { errno: errno };
 }
 
+function chown(strpath, owner, group) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.syscall(0x343, "path", owner, group)
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	
+	return { errno: errno };
+}
+
 
 module.exports = {
 	open,
@@ -240,4 +255,5 @@ module.exports = {
 	fstat,
 	mkdir,
 	chmod,
+	chown,
 }
