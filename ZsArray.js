@@ -97,14 +97,14 @@ class ZsArray {
 			
 			// Search 0x20000 bytes (last resort)
 			if (addrStr === null) {
-				zs.logger.debug(`long search!`);
+				//zs.logger.debug(`long search!`);
 				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x40000);
 				for (var i = 0; i < 0x40000 / 2; i++) {
 					str = mem.substr(i, this.array[1].length);
 					if (str === this.array[1]) {
-						zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
+						//zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
 						addrStr = addr3 + i * 2;
-						zs.logger.debug(`addrStr: ${addrStr.toString(16)}`);
+						//zs.logger.debug(`addrStr: ${addrStr.toString(16)}`);
 						break;
 					}
 				}
