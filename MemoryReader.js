@@ -17,7 +17,7 @@ class MemoryReader {
 		
 		// Not sure how "correct" this is, but it seems to work
 		var alignment = null;
-		for (var align = 0x400; align <= 0x20000; align *= 2) {
+		for (var align = 0x400; align <= 0x200000; align *= 2) {
 			var maxRead = align * 2;	
 			var rem = readAddress % align;
 			var requiredRead = readSize + rem;
