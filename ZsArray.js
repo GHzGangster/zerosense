@@ -97,8 +97,9 @@ class ZsArray {
 			
 			// Search 0x20000 bytes (last resort)
 			if (addrStr === null) {
-				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x20000);
-				for (var i = 0; i < 0x20000 / 2; i++) {
+				zs.logger.debug(`long search!`);
+				mem = this.memoryReader.read(addr3, this.array[1].length * 2 + 0x40000);
+				for (var i = 0; i < 0x40000 / 2; i++) {
 					str = mem.substr(i, this.array[1].length);
 					if (str === this.array[1]) {
 						zs.logger.debug(`Found long b: ${this.array[1].length}    ${i}`);
