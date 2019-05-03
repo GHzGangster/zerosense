@@ -210,6 +210,36 @@ function mkdir(strpath, mode) {
 	return { errno: errno };
 }
 
+function rmdir(strpath) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.syscall(0x32D, "path")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	
+	return { errno: errno };
+}
+
+function unlink(strpath) {
+	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
+		.addDataStr("path", Util.ascii(strpath))
+		.addDataInt32("errno")
+		.syscall(0x32E, "path")
+		.storeR3("errno")
+		.create();
+	
+	chain.prepare(zs.zsArray).execute();
+	
+	var errno = chain.getDataInt32("errno");
+	
+	return { errno: errno };
+}
+
 function chmod(strpath, mode) {
 	var chain = new ChainBuilder(zs.offsets, zs.addrGtemp)
 		.addDataStr("path", Util.ascii(strpath))
@@ -254,6 +284,8 @@ module.exports = {
 	stat,
 	fstat,
 	mkdir,
+	rmdir,
+	unlink,
 	chmod,
 	chown,
 }
