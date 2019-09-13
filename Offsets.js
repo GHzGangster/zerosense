@@ -62,6 +62,38 @@ const DEX_484 = {
 	
 };
 
+const CEX_485 = {
+	
+	toc: 0x6F5558,
+	tocEntry4: 0x740000,
+	
+	////////////
+	
+	gadget1: 0x97604,
+	gadget6: 0x615CDC,
+	
+	gadgetMod1: 0x60EFD8,
+	gadgetMod2: 0x13B74,
+	gadgetMod3: 0xB8E00,
+	gadgetMod4a: 0xD9684,
+	gadgetMod5: 0x4238DC,
+	gadgetMod8: 0x2BACB8,
+	gadgetMod13: 0x336870,
+	gadgetMod15: 0x39D038,
+	
+	////////////
+	
+	tocZ1: 0x747D10, // _sysPrxForUser_
+	
+	gadgetZ1: 0x2FCDBC,
+	gadgetZ2: 0x615CD8, // _sysPrxForUser__sys_malloc
+	gadgetZ3: 0x615C70, // _sysPrxForUser__sys_free
+	
+	gadgetZMod1: 0xDD518,
+	gadgetZMod2: 0x105F0,
+	
+};
+
 
 function get(env) {
 	var dex = env.dex;
